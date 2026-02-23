@@ -1,0 +1,76 @@
+{% extends "core/base.html" %}
+
+{% block content %}
+<div class="d-flex flex-wrap align-items-center justify-content-between mb-4">
+	<div>
+		<h2 class="page-title mb-1">Courses API</h2>
+		<p class="text-muted mb-0">JSON endpoint for course data. Use in Postman or mobile apps.</p>
+	</div>
+	<span class="badge-soft">/api/courses/</span>
+</div>
+
+<div class="row g-4">
+	<div class="col-lg-6">
+		<div class="page-card p-4 lift">
+			<h5 class="card-title">Endpoint</h5>
+			<p class="text-muted mb-3">Base URL for course operations.</p>
+			<div class="bg-light p-3 rounded">
+				<code>GET /api/courses/</code>
+			</div>
+			<p class="text-muted small mt-2">Returns a list of all courses in JSON format.</p>
+		</div>
+	</div>
+	<div class="col-lg-6">
+		<div class="page-card p-4 lift stagger-1">
+			<h5 class="card-title">Methods</h5>
+			<ul class="list-group list-group-flush">
+				<li class="list-group-item"><strong>GET</strong> – Retrieve all courses</li>
+				<li class="list-group-item"><strong>POST</strong> – Create a new course</li>
+			</ul>
+		</div>
+	</div>
+</div>
+
+<div class="row g-4 mt-2">
+	<div class="col-lg-6">
+		<div class="page-card p-4 lift stagger-2">
+			<h5 class="card-title">Sample Response</h5>
+			<pre class="mb-0"><code>{
+  "count": 3,
+  "results": [
+    {
+      "id": "789a-012b",
+      "title": "Python Basics",
+      "code": "PY101",
+      "description": "Learn Python..."
+    }
+  ]
+}</code></pre>
+		</div>
+	</div>
+	<div class="col-lg-6">
+		<div class="page-card p-4 lift stagger-3">
+			<h5 class="card-title">Create Course</h5>
+			<p class="text-muted">POST body example:</p>
+			<pre class="mb-0"><code>{
+  "title": "Web Development",
+  "code": "WEB201",
+  "description": "Master HTML, CSS, JS"
+}</code></pre>
+		</div>
+	</div>
+</div>
+
+<div class="row g-4 mt-2">
+	<div class="col-12">
+		<div class="page-card p-4 lift stagger-1">
+			<h5 class="card-title">Related Endpoints</h5>
+			<div class="d-grid gap-2 d-md-flex">
+				<a class="btn btn-outline-primary" href="/api/courses/">View Raw JSON</a>
+				<a class="btn btn-outline-secondary" href="/api/students/">Students API</a>
+				<a class="btn btn-outline-secondary" href="/courses/">Back to UI</a>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}

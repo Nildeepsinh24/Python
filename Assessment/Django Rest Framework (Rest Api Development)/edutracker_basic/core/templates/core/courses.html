@@ -1,0 +1,79 @@
+{% extends "core/base.html" %}
+
+{% block content %}
+<div class="d-flex flex-wrap align-items-center justify-content-between mb-4">
+	<div>
+		<h2 class="page-title mb-1">Courses</h2>
+		<p class="text-muted mb-0">Design and organize the course catalog.</p>
+	</div>
+	<span class="badge-soft">Course Hub</span>
+</div>
+
+<div class="row g-4">
+	<div class="col-lg-4">
+		<div class="page-card p-4 lift">
+			<h5 class="card-title">Add Course</h5>
+			{% if form.errors %}
+				<div class="alert alert-danger">Please fix the errors below.</div>
+			{% endif %}
+			<form method="post">
+				{% csrf_token %}
+				<div class="mb-3">
+					<label class="form-label">Title</label>
+					{{ form.title }}
+					<div class="text-danger small">{{ form.title.errors }}</div>
+				</div>
+				<div class="mb-3">
+					<label class="form-label">Code</label>
+					{{ form.code }}
+					<div class="text-danger small">{{ form.code.errors }}</div>
+				</div>
+				<div class="mb-3">
+					<label class="form-label">Description</label>
+					{{ form.description }}
+					<div class="text-danger small">{{ form.description.errors }}</div>
+				</div>
+				<button class="btn btn-primary w-100" type="submit">Create Course</button>
+			</form>
+		</div>
+		<div class="page-card p-4 mt-3 lift stagger-1">
+			<h6 class="text-muted">Quick Tips</h6>
+			<p class="mb-0">Use short, unique codes for easier enrollment workflows.</p>
+		</div>
+	</div>
+	<div class="col-lg-8">
+		<div class="page-card p-4 lift">
+			<div class="d-flex flex-wrap align-items-center justify-content-between">
+				<h5 class="card-title mb-0">Course Catalog</h5>
+				<span class="badge-accent">{{ courses|length }} total</span>
+			</div>
+			<div class="table-responsive mt-3">
+				<table class="table table-hover align-middle">
+					<thead>
+						<tr>
+							<th>Code</th>
+							<th>Title</th>
+							<th class="text-end">Action</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for course in courses %}
+							<tr>
+								<td>{{ course.code }}</td>
+								<td>{{ course.title }}</td>
+								<td class="text-end">
+									<a class="btn btn-sm btn-outline-primary" href="/courses/{{ course.id }}/">View</a>
+								</td>
+							</tr>
+						{% empty %}
+							<tr>
+								<td colspan="3" class="text-muted">No courses yet.</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}

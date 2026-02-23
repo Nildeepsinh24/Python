@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container py-5">
+  <div class="card shadow p-4">
+    <h2 class="text-primary text-center mb-3">Welcome, {{ user }} 👋</h2>
+    <p class="text-center text-muted">Role: <strong>{{ role }}</strong></p>
+
+    {% if role == 'admin' %}
+    <div class="text-center mb-3">
+      <a href="/admin" class="btn btn-warning">Go to Admin Panel</a>
+    </div>
+    {% endif %}
+
+    <form method="POST" class="d-flex justify-content-center mb-3">
+      <input type="text" name="title" class="form-control w-50" placeholder="Enter new task" required>
+      <button type="submit" class="btn btn-success ms-2">Add Task</button>
+    </form>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, msg in messages %}
+          <div class="alert alert-{{ category }}">{{ msg }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <table class="table table-bordered table-striped text-center mt-3">
+      <thead class="table-dark">
+        <tr>
+          <th>#</th>
+          <th>User</th>
+          <th>Title</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for t in tasks %}
+        <tr>
+          <td>{{ loop.index }}</td>
+          <td>{{ t.user }}</td>
+          <td>{{ t.title }}</td>
+          <td>
+            {% if t.status == 'Completed' %}
+              <span class="badge bg-success">Completed</span>
+            {% else %}
+              <span class="badge bg-secondary">Pending</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if t.status != 'Completed' %}
+              <a href="/complete/{{ loop.index0 }}" class="btn btn-sm btn-info">Complete</a>
+            {% endif %}
+            <a href="/delete/{{ loop.index0 }}" class="btn btn-sm btn-danger">Delete</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="text-center mt-4">
+      <a href="/logout" class="btn btn-outline-danger">Logout</a>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

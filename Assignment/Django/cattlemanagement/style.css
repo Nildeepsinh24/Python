@@ -1,0 +1,31 @@
+body {
+    background-color: #f8fdf7;
+    font-family: 'Poppins', sans-serif;
+}
+
+.navbar {
+    border-radius: 0 0 15px 15px;
+}
+
+.nav-link:hover {
+    text-decoration: underline;
+    color: #fff !important;
+}
+
+.card {
+    border-radius: 15px;
+    background: #ffffff;
+}
+
+.btn-success {
+    background-color: #2e7d32 !important;
+    border: none;
+}
+
+.btn-success:hover {
+    background-color: #256528 !important;
+}
+
+footer {
+    border-top: 2px solid #256528;
+}

@@ -1,0 +1,72 @@
+/* Light Mode (default) */
+body {
+  background: linear-gradient(to right, #f0f4ff, #e8f0ff);
+  font-family: 'Poppins', sans-serif;
+  transition: background 0.5s, color 0.5s;
+}
+
+.navbar {
+  border-bottom: 3px solid #0d6efd;
+}
+
+.card.form-card {
+  max-width: 400px;
+  margin-top: 80px;
+  border-radius: 15px;
+}
+
+.card {
+  border-radius: 12px;
+}
+
+.btn {
+  border-radius: 25px;
+  font-weight: 500;
+}
+
+.table {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+}
+
+/* --------------------------- */
+/* 🌙 DARK MODE STYLES */
+/* --------------------------- */
+[data-theme="dark"] {
+  background: linear-gradient(to right, #121212, #1a1a1a);
+  color: #e2e2e2;
+}
+
+[data-theme="dark"] .navbar {
+  background-color: #1c1c1c !important;
+  border-bottom-color: #333;
+}
+
+[data-theme="dark"] .card {
+  background-color: #1f1f1f;
+  color: #e2e2e2;
+  border: 1px solid #333;
+}
+
+[data-theme="dark"] .table {
+  color: #e2e2e2;
+}
+
+[data-theme="dark"] .table th {
+  background-color: #2a2a2a !important;
+}
+
+[data-theme="dark"] .footer {
+  background-color: #1c1c1c;
+  color: #aaa;
+}
+
+.transition-all {
+  transition: all 0.4s ease-in-out;
+}

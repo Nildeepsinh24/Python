@@ -1,0 +1,63 @@
+{% extends "core/base.html" %}
+
+{% block content %}
+<div class="d-flex flex-wrap align-items-center justify-content-between mb-4">
+	<div>
+		<h2 class="page-title mb-1">{{ course.title }}</h2>
+		<p class="text-muted mb-0">Maintain course details and enrollment list.</p>
+	</div>
+	<span class="badge-soft">{{ course.code }}</span>
+</div>
+
+<div class="row g-4">
+	<div class="col-lg-6">
+		<div class="page-card p-4 lift">
+			<h5 class="card-title">Update Course</h5>
+			{% if form.errors %}
+				<div class="alert alert-danger">Please fix the errors below.</div>
+			{% endif %}
+			<form method="post" action="/courses/{{ course.id }}/update/">
+				{% csrf_token %}
+				<div class="mb-3">
+					<label class="form-label">Title</label>
+					{{ form.title }}
+					<div class="text-danger small">{{ form.title.errors }}</div>
+				</div>
+				<div class="mb-3">
+					<label class="form-label">Code</label>
+					{{ form.code }}
+					<div class="text-danger small">{{ form.code.errors }}</div>
+				</div>
+				<div class="mb-3">
+					<label class="form-label">Description</label>
+					{{ form.description }}
+					<div class="text-danger small">{{ form.description.errors }}</div>
+				</div>
+				<div class="d-flex gap-2">
+					<button class="btn btn-primary" type="submit">Save Changes</button>
+					<a class="btn btn-outline-secondary" href="/courses/">Back</a>
+				</div>
+			</form>
+			<form method="post" action="/courses/{{ course.id }}/delete/" class="mt-3">
+				{% csrf_token %}
+				<button class="btn btn-outline-danger" type="submit">Delete Course</button>
+			</form>
+		</div>
+	</div>
+	<div class="col-lg-6">
+		<div class="page-card p-4 lift stagger-1">
+			<h5 class="card-title">Enrolled Students</h5>
+			<ul class="list-group list-group-flush">
+				{% for student in students %}
+					<li class="list-group-item d-flex justify-content-between align-items-center">
+						<span>{{ student.first_name }} {{ student.last_name }}</span>
+						<a class="btn btn-sm btn-outline-secondary" href="/students/{{ student.id }}/">View</a>
+					</li>
+				{% empty %}
+					<li class="list-group-item text-muted">No students enrolled yet.</li>
+				{% endfor %}
+			</ul>
+		</div>
+	</div>
+</div>
+{% endblock %}
