@@ -27,6 +27,33 @@ function Watch({ payload, user, csrfToken }) {
   
   const uiTimeoutRef = useRef(null);
 
+  const syncProgress = (force = false) => {
+    const video = videoRef.current;
+    if (video && video.duration) {
+      const progressPercentage = Math.round((video.currentTime / video.duration) * 100);
+      
+      if (force || (!video.paused)) {
+        fetch('/api/watch/progress/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+          },
+          body: JSON.stringify({
+            movie_id: movie.id,
+            progress: progressPercentage
+          }),
+          keepalive: true
+        })
+        .then(res => res.json())
+        .then(data => {
+          console.log("Progress synced percentage:", data.progress);
+        })
+        .catch(err => console.error(err));
+      }
+    }
+  };
+
   // Auto-hide UI on inactivity
   const showUI = () => {
     setUiVisible(true);
@@ -83,6 +110,7 @@ function Watch({ payload, user, csrfToken }) {
     } else {
       video.pause();
       setIsPlaying(false);
+      syncProgress(true); // Sync immediately when pausing
     }
     showUI();
   };
@@ -139,29 +167,34 @@ function Watch({ payload, user, csrfToken }) {
   // Sync progress back to database every 5 seconds
   useEffect(() => {
     const syncInterval = setInterval(() => {
-      const video = videoRef.current;
-      if (video && !video.paused && video.duration) {
-        const progressPercentage = Math.round((video.currentTime / video.duration) * 100);
-        fetch('/api/watch/progress/', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': csrfToken
-          },
-          body: JSON.stringify({
-            movie_id: movie.id,
-            progress: progressPercentage
-          })
-        })
-        .then(res => res.json())
-        .then(data => {
-          console.log("Progress synced percentage:", data.progress);
-        })
-        .catch(err => console.error(err));
-      }
+      syncProgress(false);
     }, 5000);
 
-    return () => clearInterval(syncInterval);
+    return () => {
+      clearInterval(syncInterval);
+      syncProgress(true); // Sync immediately on unmount
+    };
+  }, [movie.id, csrfToken]);
+
+  // Sync progress on window unload and visibility change (e.g. closing tab, navigating away)
+  useEffect(() => {
+    const handleUnloadOrHide = () => {
+      syncProgress(true);
+    };
+
+    window.addEventListener('beforeunload', handleUnloadOrHide);
+    
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        syncProgress(true);
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleUnloadOrHide);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, [movie.id, csrfToken]);
 
   // Format time display
