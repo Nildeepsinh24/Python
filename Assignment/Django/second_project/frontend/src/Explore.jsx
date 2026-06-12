@@ -364,7 +364,7 @@ function Explore({ payload, user, csrfToken, page }) {
                       className="movie-card relative aspect-[2/3] overflow-hidden rounded-2xl bg-black/80 cursor-pointer group shadow-xl shadow-black/25 ring-1 ring-white/10 animate-fade-in"
                     >
                       <img
-                        className="absolute inset-0 w-full h-full object-contain object-center bg-black/80 transition-transform duration-500 group-hover:scale-[1.02]"
+                        className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-[1.02]"
                         src={movie.poster_url}
                         alt={`${movie.title} poster`}
                         loading="lazy"

@@ -78,7 +78,7 @@ function MovieDetail({ payload, user, csrfToken }) {
               <img 
                 src={movie.poster_url} 
                 alt={`${movie.title} poster`} 
-                className="w-full h-full object-contain object-center"
+                className="w-full h-full object-cover object-center"
               />
             </div>
           </div>
