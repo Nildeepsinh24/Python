@@ -1,0 +1,1106 @@
+{% extends 'cine_verse/base.html' %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<style>
+    .drag-handle {
+        cursor: grab;
+        touch-action: none;
+    }
+    .drag-handle:active {
+        cursor: grabbing;
+    }
+    tr.dragging {
+        opacity: 0.5;
+        background: rgba(229, 9, 20, 0.1) !important;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        border: 2px dashed rgba(229, 9, 20, 0.3);
+    }
+</style>
+<main class="pt-24 pb-section-gap px-gutter max-w-[1440px] mx-auto">
+    <!-- Top App Bar (Admin Context) -->
+    <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div>
+            <h2 class="font-headline-lg text-headline-lg text-on-background text-white">System Admin</h2>
+            <p class="text-on-surface-variant font-body-md">Administrator panel. Monitoring site activity, movies catalog, and subscriptions.</p>
+        </div>
+    </header>
+
+    <!-- Tabs Navigation -->
+    <div class="flex gap-4 border-b border-white/10 mb-8">
+        <button id="tab-overview-btn" class="px-6 py-3 border-b-2 border-primary-container text-primary-container font-bold text-sm transition-all focus:outline-none">System Overview</button>
+        <button id="tab-library-btn" class="px-6 py-3 border-b-2 border-transparent text-on-surface-variant hover:text-white font-bold text-sm transition-all focus:outline-none flex items-center gap-2">
+            <span class="material-symbols-outlined text-sm">movie_filter</span> Manage Catalog
+        </button>
+    </div>
+
+    <!-- Error/Success Notification if any -->
+    {% if error %}
+    <div class="glass-panel border-red-500/30 bg-red-500/10 p-4 rounded-xl text-red-400 font-bold mb-8 text-sm flex items-center gap-2">
+        <span class="material-symbols-outlined text-sm">error</span> {{ error }}
+    </div>
+    {% endif %}
+
+    <!-- PANEL 1: OVERVIEW -->
+    <div id="panel-overview" class="block space-y-10">
+        <!-- Stats Grid -->
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Total Users -->
+            <div class="glass-panel p-6 rounded-2xl group hover:border-primary-container/30 transition-all duration-500">
+                <div class="flex justify-between items-start mb-4">
+                    <div class="p-3 bg-primary-container/10 rounded-xl">
+                        <span class="material-symbols-outlined text-primary-container">group</span>
+                    </div>
+                    <span class="text-green-400 font-label-caps text-xs flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm">trending_up</span> +12%
+                    </span>
+                </div>
+                <h3 class="text-on-surface-variant font-label-caps mb-1 text-xs uppercase tracking-wider font-bold">Total Accounts</h3>
+                <p class="text-3xl font-headline-md font-bold text-white">{{ total_users }}</p>
+            </div>
+            <!-- Total Movies -->
+            <div class="glass-panel p-6 rounded-2xl group hover:border-primary-container/30 transition-all duration-500">
+                <div class="flex justify-between items-start mb-4">
+                    <div class="p-3 bg-primary-container/10 rounded-xl">
+                        <span class="material-symbols-outlined text-primary-container">movie_filter</span>
+                    </div>
+                    <span class="text-on-surface-variant/50 font-label-caps text-xs">Stable</span>
+                </div>
+                <h3 class="text-on-surface-variant font-label-caps mb-1 text-xs uppercase tracking-wider font-bold">Catalog Library</h3>
+                <p class="text-3xl font-headline-md font-bold text-white">{{ total_movies }}</p>
+            </div>
+            <!-- Active Subscribers -->
+            <div class="glass-panel p-6 rounded-2xl group hover:border-primary-container/30 transition-all duration-500">
+                <div class="flex justify-between items-start mb-4">
+                    <div class="p-3 bg-primary-container/10 rounded-xl">
+                        <span class="material-symbols-outlined text-primary-container">card_membership</span>
+                    </div>
+                    <span class="text-green-400 font-label-caps text-xs flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm">trending_up</span> +8.4%
+                    </span>
+                </div>
+                <h3 class="text-on-surface-variant font-label-caps mb-1 text-xs uppercase tracking-wider font-bold">Paid Tiers</h3>
+                <p class="text-3xl font-headline-md font-bold text-white">{{ total_users }}</p>
+            </div>
+            <!-- Revenue -->
+            <div class="glass-panel p-6 rounded-2xl group hover:border-primary-container/30 transition-all duration-500">
+                <div class="flex justify-between items-start mb-4">
+                    <div class="p-3 bg-primary-container/10 rounded-xl">
+                        <span class="material-symbols-outlined text-primary-container">payments</span>
+                    </div>
+                    <span class="text-green-400 font-label-caps text-xs flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm">trending_up</span> +15%
+                    </span>
+                </div>
+                <h3 class="text-on-surface-variant font-label-caps mb-1 text-xs uppercase tracking-wider font-bold">Est. Monthly Revenue</h3>
+                <p class="text-3xl font-headline-md font-bold text-white">${{ monthly_revenue }}</p>
+            </div>
+        </section>
+
+        <!-- Data Visualization Section -->
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Main Growth Chart -->
+            <div class="lg:col-span-2 glass-panel p-6 rounded-2xl">
+                <div class="flex items-center justify-between mb-8">
+                    <div>
+                        <h4 class="font-headline-md text-headline-md text-white">Subscriber Growth</h4>
+                        <p class="text-on-surface-variant text-body-md">Year-to-date performance</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button type="button" class="px-3 py-1 bg-white/5 rounded-lg text-xs hover:bg-white/10 text-white">W</button>
+                        <button type="button" class="px-3 py-1 bg-primary-container text-on-primary-container rounded-lg text-xs text-white">M</button>
+                        <button type="button" class="px-3 py-1 bg-white/5 rounded-lg text-xs hover:bg-white/10 text-white">Y</button>
+                    </div>
+                </div>
+                <div class="h-64 relative flex items-end gap-2 overflow-hidden">
+                    <div class="flex-1 bg-primary-container/20 rounded-t-lg h-[40%] hover:bg-primary-container/40 transition-all duration-300 relative group cursor-pointer">
+                        <div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-[#1E2020] p-2 rounded text-[10px] opacity-0 group-hover:opacity-100 transition-opacity text-white">120</div>
+                    </div>
+                    <div class="flex-1 bg-primary-container/30 rounded-t-lg h-[60%] hover:bg-primary-container/50 transition-all duration-300 relative group cursor-pointer">
+                        <div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-[#1E2020] p-2 rounded text-[10px] opacity-0 group-hover:opacity-100 transition-opacity text-white">180</div>
+                    </div>
+                    <div class="flex-1 bg-primary-container/25 rounded-t-lg h-[55%] hover:bg-primary-container/45 transition-all duration-300 relative group cursor-pointer">
+                        <div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-[#1E2020] p-2 rounded text-[10px] opacity-0 group-hover:opacity-100 transition-opacity text-white">165</div>
+                    </div>
+                    <div class="flex-1 bg-primary-container/40 rounded-t-lg h-[80%] hover:bg-primary-container/60 transition-all duration-300 relative group cursor-pointer">
+                        <div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-[#1E2020] p-2 rounded text-[10px] opacity-0 group-hover:opacity-100 transition-opacity text-white">240</div>
+                    </div>
+                    <div class="flex-1 bg-primary-container/50 rounded-t-lg h-[90%] hover:bg-primary-container/70 transition-all duration-300 relative group cursor-pointer">
+                        <div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-[#1E2020] p-2 rounded text-[10px] opacity-0 group-hover:opacity-100 transition-opacity text-white">270</div>
+                    </div>
+                    <div class="flex-1 bg-primary-container/45 rounded-t-lg h-[85%] hover:bg-primary-container/65 transition-all duration-300 relative group cursor-pointer">
+                        <div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-[#1E2020] p-2 rounded text-[10px] opacity-0 group-hover:opacity-100 transition-opacity text-white">255</div>
+                    </div>
+                    <div class="flex-1 bg-primary-container rounded-t-lg h-[100%] hover:brightness-125 transition-all duration-300 relative group cursor-pointer">
+                        <div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-[#1E2020] p-2 rounded text-[10px] opacity-0 group-hover:opacity-100 transition-opacity text-white">300</div>
+                    </div>
+                </div>
+                <div class="flex justify-between mt-4 text-on-surface-variant font-label-caps opacity-50 text-xs">
+                    <span>JAN</span><span>FEB</span><span>MAR</span><span>APR</span><span>MAY</span><span>JUN</span><span>JUL</span>
+                </div>
+            </div>
+            <!-- User Distribution (Radial Mockup) -->
+            <div class="glass-panel p-6 rounded-2xl flex flex-col items-center justify-center text-center">
+                <h4 class="font-headline-md text-headline-md mb-2 text-white">User Retention</h4>
+                <div class="relative w-40 h-40 mb-6">
+                    <svg class="w-full h-full transform -rotate-90">
+                        <circle cx="80" cy="80" fill="transparent" r="70" stroke="rgba(255,255,255,0.05)" stroke-width="12"></circle>
+                        <circle cx="80" cy="80" fill="transparent" r="70" stroke="#E50914" stroke-dasharray="440" stroke-dashoffset="88" stroke-linecap="round" stroke-width="12"></circle>
+                    </svg>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="text-2xl font-bold text-white">82%</span>
+                    </div>
+                </div>
+                <div class="space-y-3 w-full">
+                    <div class="flex justify-between items-center text-body-md">
+                        <span class="flex items-center gap-2 text-white"><span class="w-2 h-2 rounded-full bg-primary-container"></span> Returning</span>
+                        <span class="font-bold text-white">82%</span>
+                    </div>
+                    <div class="flex justify-between items-center text-body-md">
+                        <span class="flex items-center gap-2 text-white"><span class="w-2 h-2 rounded-full bg-white/20"></span> New</span>
+                        <span class="font-bold text-white">18%</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tables Row -->
+        <section class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+            <!-- Recent Users Table -->
+            <div class="glass-panel rounded-2xl overflow-hidden">
+                <div class="p-6 border-b border-white/5 flex justify-between items-center">
+                    <h4 class="font-headline-md text-headline-md text-white">New Registrations</h4>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="text-on-surface-variant/50 font-label-caps text-xs border-b border-white/5">
+                                <th class="px-6 py-4 uppercase">User</th>
+                                <th class="px-6 py-4 uppercase">Plan</th>
+                                <th class="px-6 py-4 uppercase">Status</th>
+                                <th class="px-6 py-4 text-right uppercase">Joined Date</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/5">
+                            {% for u in users %}
+                            <tr class="hover:bg-white/5 transition-colors group">
+                                <td class="px-6 py-4 flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center text-xs font-bold text-white uppercase">{{ u.username|slice:":2" }}</div>
+                                    <span class="font-medium text-white">{{ u.username }}</span>
+                                </td>
+                                <td class="px-6 py-4 text-on-surface-variant">{{ u.profile.subscription_plan }}</td>
+                                <td class="px-6 py-4">
+                                    <span class="px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 text-[10px]">ACTIVE</span>
+                                </td>
+                                <td class="px-6 py-4 text-right text-on-surface-variant text-sm">{{ u.date_joined|date:"M d, Y" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="p-6 text-center text-on-surface-variant text-sm">No registered accounts.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Recently Added Movies -->
+            <div class="glass-panel rounded-2xl overflow-hidden">
+                <div class="p-6 border-b border-white/5 flex justify-between items-center">
+                    <h4 class="font-headline-md text-headline-md text-white">Library Updates</h4>
+                    <a href="{% url 'movie_list' %}" class="text-primary-container font-label-caps text-xs font-bold hover:underline transition-all">MANAGE CATALOG</a>
+                </div>
+                <div class="p-6 space-y-4">
+                    {% for movie in movies|slice:":4" %}
+                    <div class="flex items-center gap-4 group">
+                        <div class="w-12 h-16 rounded overflow-hidden flex-shrink-0 bg-surface-container">
+                            <img alt="{{ movie.title }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" src="{{ movie.poster_url }}" onerror="this.onerror=null;this.src='https://placehold.co/300x450?text={{ movie.title|urlencode }}'"/>
+                        </div>
+                        <div class="flex-1">
+                            <p class="font-bold text-on-background text-white">{{ movie.title }}</p>
+                            <p class="text-xs text-on-surface-variant">{% if movie.genres.exists %}{{ movie.genres.first.name }}{% else %}No Genre{% endif %} • {{ movie.release_year }} • {{ movie.language }}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-[10px] text-on-surface-variant font-label-caps uppercase">Rating</p>
+                            <p class="text-xs text-white font-bold">{{ movie.rating }}</p>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-on-surface-variant text-sm">No movies in the catalog library.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- PANEL 2: MANAGE CATALOG -->
+    <div id="panel-library" class="hidden space-y-6">
+        <div class="glass-panel rounded-2xl overflow-hidden">
+            <!-- Search & Actions -->
+            <div class="p-6 border-b border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <h4 class="font-headline-md text-headline-md text-white flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary-container">movie_filter</span> Library Catalog
+                </h4>
+                <div class="flex items-center gap-3">
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+                        <input id="catalog-search" type="text" placeholder="Search catalog..." class="bg-white/5 border border-white/10 rounded-lg pl-9 pr-4 py-2 text-sm text-white focus:outline-none focus:border-primary-container transition-colors w-48 sm:w-64"/>
+                    </div>
+                    <button onclick="openAddTitleModal()" class="px-4 py-2 bg-primary-container text-on-primary-container rounded-lg font-bold text-sm hover:brightness-110 transition-all flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-sm">add</span> Add Title
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filter Controls (Movies vs Series Separated, and Genre Filtering) -->
+            <div class="p-6 bg-white/[0.02] border-b border-white/5 flex flex-col md:flex-row gap-4 items-center justify-between">
+                <!-- Content Type Segment Control -->
+                <div class="flex gap-2 bg-white/5 p-1 rounded-xl border border-white/5 w-full md:w-auto">
+                    <a href="?content_type=movie{% if selected_genre_id %}&genre={{ selected_genre_id }}{% endif %}" 
+                       onclick="localStorage.setItem('admin-active-tab', 'library');"
+                       class="flex-1 md:flex-initial text-center px-6 py-2 rounded-lg text-sm font-semibold transition-colors {% if selected_content_type == 'movie' %}bg-primary-container text-white{% else %}text-on-surface-variant hover:text-white{% endif %}">
+                        Movies
+                    </a>
+                    <a href="?content_type=series{% if selected_genre_id %}&genre={{ selected_genre_id }}{% endif %}" 
+                       onclick="localStorage.setItem('admin-active-tab', 'library');"
+                       class="flex-1 md:flex-initial text-center px-6 py-2 rounded-lg text-sm font-semibold transition-colors {% if selected_content_type == 'series' %}bg-primary-container text-white{% else %}text-on-surface-variant hover:text-white{% endif %}">
+                        Series
+                    </a>
+                </div>
+                
+                <!-- Genre Dropdown Selector -->
+                <div class="flex items-center gap-3 w-full md:w-auto justify-end">
+                    <label class="text-xs font-bold text-on-surface-variant uppercase whitespace-nowrap">Filter Genre:</label>
+                    <select id="genre-filter-select" onchange="filterByGenre(this.value)" class="bg-[#1A1C1E] border border-white/10 rounded-lg px-4 py-2 text-white text-sm focus:outline-none focus:border-primary-container transition-colors w-full md:w-48">
+                        <option value="">All Genres</option>
+                        {% for g in genres %}
+                        <option value="{{ g.id }}" {% if selected_genre_id == g.id %}selected{% endif %}>{{ g.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <!-- Movies/Series Table -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="text-on-surface-variant/50 font-label-caps text-xs border-b border-white/5">
+                            <th class="px-6 py-4 uppercase">Title</th>
+                            <th class="px-6 py-4 uppercase">Genres</th>
+                            <th class="px-6 py-4 text-center uppercase">Reorder</th>
+                            <th class="px-6 py-4 text-center uppercase">Collections</th>
+                            <th class="px-6 py-4 text-right uppercase">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="catalog-table-body" class="divide-y divide-white/5">
+                        {% for movie in movies %}
+                        <tr data-movie-id="{{ movie.id }}" class="hover:bg-white/5 transition-colors border-b border-white/5">
+                            <td class="px-6 py-4 flex items-center gap-3">
+                                <span class="material-symbols-outlined drag-handle text-white/20 hover:text-white/80 select-none mr-1" title="Drag to reorder">drag_indicator</span>
+                                <img src="{{ movie.poster_url }}" class="w-10 h-14 object-cover rounded bg-white/5 flex-shrink-0" onerror="this.onerror=null;this.src='https://placehold.co/300x450?text={{ movie.title|urlencode }}';"/>
+                                <div>
+                                    <p class="font-bold text-white leading-tight movie-title-cell">{{ movie.title }}</p>
+                                    <p class="text-xs text-on-surface-variant">{{ movie.content_type|upper }} • {{ movie.release_year }} • {{ movie.duration }}</p>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-on-surface-variant">
+                                {% for g in movie.genres.all %}{{ g.name }}{% if not forloop.last %}, {% endif %}{% empty %}None{% endfor %}
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <div class="flex items-center justify-center gap-1">
+                                    <button onclick="reorderMovie({{ movie.id }}, 'up')" class="p-1 hover:bg-white/10 text-white rounded transition-colors flex items-center justify-center" title="Move Up">
+                                        <span class="material-symbols-outlined text-sm">arrow_upward</span>
+                                    </button>
+                                    <button onclick="reorderMovie({{ movie.id }}, 'down')" class="p-1 hover:bg-white/10 text-white rounded transition-colors flex items-center justify-center" title="Move Down">
+                                        <span class="material-symbols-outlined text-sm">arrow_downward</span>
+                                    </button>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <div class="flex items-center justify-center gap-1.5 flex-wrap">
+                                    {% if movie.is_trending %}<span class="px-1.5 py-0.5 rounded bg-primary-container/20 text-primary-container text-[9px] font-bold">TRENDING</span>{% endif %}
+                                    {% if movie.is_popular %}<span class="px-1.5 py-0.5 rounded bg-green-500/20 text-green-400 text-[9px] font-bold">POPULAR</span>{% endif %}
+                                    {% if movie.is_latest %}<span class="px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-400 text-[9px] font-bold">LATEST</span>{% endif %}
+                                    {% if movie.is_top_rated %}<span class="px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-400 text-[9px] font-bold">TOP</span>{% endif %}
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-right flex items-center justify-end gap-2">
+                                <button onclick="openEditTitleModal(this)"
+                                        data-id="{{ movie.id }}"
+                                        data-title="{{ movie.title }}"
+                                        data-description="{{ movie.description }}"
+                                        data-content-type="{{ movie.content_type }}"
+                                        data-poster-url="{{ movie.poster_url }}"
+                                        data-banner-url="{{ movie.banner_url }}"
+                                        data-video-url="{{ movie.video_url }}"
+                                        data-rating="{{ movie.rating }}"
+                                        data-release-year="{{ movie.release_year }}"
+                                        data-language="{{ movie.language }}"
+                                        data-duration="{{ movie.duration }}"
+                                        data-cast="{{ movie.cast }}"
+                                        data-crew="{{ movie.crew }}"
+                                        data-is-trending="{% if movie.is_trending %}true{% else %}false{% endif %}"
+                                        data-is-popular="{% if movie.is_popular %}true{% else %}false{% endif %}"
+                                        data-is-latest="{% if movie.is_latest %}true{% else %}false{% endif %}"
+                                        data-is-top-rated="{% if movie.is_top_rated %}true{% else %}false{% endif %}"
+                                        data-genres="[{% for g in movie.genres.all %}{{ g.id }}{% if not forloop.last %},{% endif %}{% endfor %}]"
+                                        class="p-2 hover:bg-white/10 text-white rounded-lg transition-colors inline-flex items-center justify-center" title="Edit Title">
+                                    <span class="material-symbols-outlined text-sm">edit</span>
+                                </button>
+                                <button onclick="deleteMovie({{ movie.id }}, '{{ movie.title|escapejs }}')" class="p-2 hover:bg-red-500/20 text-red-400 rounded-lg transition-colors inline-flex items-center justify-center" title="Delete Movie">
+                                    <span class="material-symbols-outlined text-sm">delete</span>
+                                </button>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="p-6 text-center text-on-surface-variant text-sm">No items in the catalog library.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Add Title Modal -->
+<div id="add-title-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm opacity-0 pointer-events-none transition-all duration-300">
+    <div class="glass-panel max-w-2xl w-full mx-4 rounded-2xl overflow-hidden shadow-2xl border border-white/10 flex flex-col max-h-[85vh]">
+        <!-- Modal Header -->
+        <div class="p-6 border-b border-white/5 flex items-center justify-between">
+            <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary-container">movie</span> Add New Title
+            </h3>
+            <button onclick="closeAddTitleModal()" class="p-1 hover:bg-white/10 rounded-full text-white/60 hover:text-white transition-colors">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <!-- Modal Body -->
+        <form id="add-title-form" action="{% url 'admin_add_movie' %}" method="POST" class="p-6 overflow-y-auto space-y-4 flex-1 text-left">
+            {% csrf_token %}
+            <!-- Title & Type -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-bold text-on-surface-variant mb-1 uppercase">Title</label>
+                    <input type="text" name="title" required class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-container transition-colors"/>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-on-surface-variant mb-1 uppercase">Content Type</label>
+                    <select name="content_type" class="w-full bg-[#1A1C1E] border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-container transition-colors">
+                        <option value="movie">Movie</option>
+                        <option value="series">Series (TV Show)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Description -->
+            <div>
+                <label class="block text-xs font-bold text-on-surface-variant mb-1 uppercase">Description</label>
+                <textarea name="description" required rows="3" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-container transition-colors"></textarea>
+            </div>
+            
+            <!-- Poster, Banner & Video URLs -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-on-surface-variant mb-1 uppercase">Poster URL</label>
+                    <input type="url" name="poster_url" required class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-container transition-colors" placeholder="https://image.tmdb.org/t/p/..."/>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-on-surface-variant mb-1 uppercase">Banner (Backdrop) URL</label>
+                    <input type="url" name="banner_url" required class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-container transition-colors" placeholder="https://image.tmdb.org/t/p/..."/>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-on-surface-variant mb-1 uppercase">Video URL</label>
+                    <input type="url" name="video_url" required class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-container transition-colors" placeholder="https://example.com/video.mp4" value="https://www.w3schools.com/html/mov_bbb.mp4"/>
+                </div>
+            </div>
+            
+            <!-- Rating, Release Year, Language, Duration -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-on-surface-variant mb-1 uppercase">Rating (0-10)</label>
+                    <input type="number" step="0.1" name="rating" min="0" max="10" required class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-container transition-colors" value="8.0"/>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-on-surface-variant mb-1 uppercase">Release Year</label>
+                    <input type="number" name="release_year" required class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-container transition-colors" value="2024"/>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-on-surface-variant mb-1 uppercase">Language</label>
+                    <input type="text" name="language" required class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-container transition-colors" value="English"/>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-on-surface-variant mb-1 uppercase">Duration</label>
+                    <input type="text" name="duration" required class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-container transition-colors" value="2h 15m" placeholder="e.g. 2h 15m or TV Series"/>
+                </div>
+            </div>
+            
+            <!-- Cast & Crew -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-on-surface-variant mb-1 uppercase">Cast (Comma separated)</label>
+                    <input type="text" name="cast" required class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-container transition-colors" placeholder="Actor 1, Actor 2"/>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-on-surface-variant mb-1 uppercase">Crew (Comma separated)</label>
+                    <input type="text" name="crew" required class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-container transition-colors" value="Director: John Doe"/>
+                </div>
+            </div>
+            
+            <!-- Genres Checkboxes -->
+            <div>
+                <label class="block text-xs font-bold text-on-surface-variant mb-2 uppercase">Genres</label>
+                <div class="grid grid-cols-3 sm:grid-cols-4 gap-3 bg-white/5 p-4 rounded-xl border border-white/5">
+                    {% for g in genres %}
+                    <label class="flex items-center gap-2 text-white text-sm cursor-pointer select-none">
+                        <input type="checkbox" name="genres" value="{{ g.id }}" class="rounded bg-white/5 border-white/10 text-primary focus:ring-0 focus:ring-offset-0"/>
+                        {{ g.name }}
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Flags Switches -->
+            <div>
+                <label class="block text-xs font-bold text-on-surface-variant mb-2 uppercase">Collection Placement Flags</label>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-white/5 p-4 rounded-xl border border-white/5">
+                    <label class="flex items-center gap-2 text-white text-sm cursor-pointer select-none">
+                        <input type="checkbox" name="is_trending" class="rounded bg-white/5 border-white/10 text-primary focus:ring-0"/>
+                        Trending
+                    </label>
+                    <label class="flex items-center gap-2 text-white text-sm cursor-pointer select-none">
+                        <input type="checkbox" name="is_popular" class="rounded bg-white/5 border-white/10 text-primary focus:ring-0"/>
+                        Popular
+                    </label>
+                    <label class="flex items-center gap-2 text-white text-sm cursor-pointer select-none">
+                        <input type="checkbox" name="is_latest" class="rounded bg-white/5 border-white/10 text-primary focus:ring-0"/>
+                        Latest
+                    </label>
+                    <label class="flex items-center gap-2 text-white text-sm cursor-pointer select-none">
+                        <input type="checkbox" name="is_top_rated" class="rounded bg-white/5 border-white/10 text-primary focus:ring-0"/>
+                        Top Rated
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Modal Actions -->
+            <div class="pt-4 border-t border-white/5 flex justify-end gap-3">
+                <button type="button" onclick="closeAddTitleModal()" class="px-6 py-2.5 rounded-lg border border-white/15 text-white hover:bg-white/10 font-bold transition-all text-sm">Cancel</button>
+                <button type="submit" class="px-6 py-2.5 rounded-lg bg-primary-container text-on-primary-container hover:brightness-110 font-bold transition-all text-sm">Add Title</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Edit Title Modal -->
+<div id="edit-title-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm opacity-0 pointer-events-none transition-all duration-300">
+    <div class="glass-panel max-w-2xl w-full mx-4 rounded-2xl overflow-hidden shadow-2xl border border-white/10 flex flex-col max-h-[85vh]">
+        <!-- Modal Header -->
+        <div class="p-6 border-b border-white/5 flex items-center justify-between">
+            <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary-container">edit</span> Edit Title Catalog
+            </h3>
+            <button onclick="closeEditTitleModal()" class="p-1 hover:bg-white/10 rounded-full text-white/60 hover:text-white transition-colors">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <!-- Modal Body -->
+        <form id="edit-title-form" method="POST" class="p-6 overflow-y-auto space-y-4 flex-1 text-left">
+            {% csrf_token %}
+            <!-- Title & Type -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="md:col-span-2">
+                    <label class="block text-xs font-bold text-on-surface-variant mb-1 uppercase">Title</label>
+                    <input type="text" id="edit-title" name="title" required class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-container transition-colors"/>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-on-surface-variant mb-1 uppercase">Content Type</label>
+                    <select id="edit-content-type" name="content_type" class="w-full bg-[#1A1C1E] border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-container transition-colors">
+                        <option value="movie">Movie</option>
+                        <option value="series">Series (TV Show)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Description -->
+            <div>
+                <label class="block text-xs font-bold text-on-surface-variant mb-1 uppercase">Description</label>
+                <textarea id="edit-description" name="description" required rows="3" class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-container transition-colors"></textarea>
+            </div>
+            
+            <!-- Poster, Banner & Video URLs -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-on-surface-variant mb-1 uppercase">Poster URL</label>
+                    <input type="url" id="edit-poster-url" name="poster_url" required class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-container transition-colors"/>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-on-surface-variant mb-1 uppercase">Banner (Backdrop) URL</label>
+                    <input type="url" id="edit-banner-url" name="banner_url" required class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-container transition-colors"/>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-on-surface-variant mb-1 uppercase">Video URL</label>
+                    <input type="url" id="edit-video-url" name="video_url" required class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-container transition-colors"/>
+                </div>
+            </div>
+            
+            <!-- Rating, Release Year, Language, Duration -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-on-surface-variant mb-1 uppercase">Rating (0-10)</label>
+                    <input type="number" step="0.1" id="edit-rating" name="rating" min="0" max="10" required class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-container transition-colors"/>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-on-surface-variant mb-1 uppercase">Release Year</label>
+                    <input type="number" id="edit-release-year" name="release_year" required class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-container transition-colors"/>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-on-surface-variant mb-1 uppercase">Language</label>
+                    <input type="text" id="edit-language" name="language" required class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-container transition-colors"/>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-on-surface-variant mb-1 uppercase">Duration</label>
+                    <input type="text" id="edit-duration" name="duration" required class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-container transition-colors"/>
+                </div>
+            </div>
+            
+            <!-- Cast & Crew -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-on-surface-variant mb-1 uppercase">Cast</label>
+                    <input type="text" id="edit-cast" name="cast" required class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-container transition-colors"/>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-on-surface-variant mb-1 uppercase">Crew</label>
+                    <input type="text" id="edit-crew" name="crew" required class="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-container transition-colors"/>
+                </div>
+            </div>
+            
+            <!-- Genres Checkboxes -->
+            <div>
+                <label class="block text-xs font-bold text-on-surface-variant mb-2 uppercase">Genres</label>
+                <div class="grid grid-cols-3 sm:grid-cols-4 gap-3 bg-white/5 p-4 rounded-xl border border-white/5">
+                    {% for g in genres %}
+                    <label class="flex items-center gap-2 text-white text-sm cursor-pointer select-none">
+                        <input type="checkbox" name="genres" value="{{ g.id }}" id="edit-genre-{{ g.id }}" class="edit-genre-checkbox rounded bg-white/5 border-white/10 text-primary focus:ring-0 focus:ring-offset-0"/>
+                        {{ g.name }}
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Flags Switches -->
+            <div>
+                <label class="block text-xs font-bold text-on-surface-variant mb-2 uppercase">Collection Placement Flags</label>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-white/5 p-4 rounded-xl border border-white/5">
+                    <label class="flex items-center gap-2 text-white text-sm cursor-pointer select-none">
+                        <input type="checkbox" id="edit-is-trending" name="is_trending" class="rounded bg-white/5 border-white/10 text-primary focus:ring-0"/>
+                        Trending
+                    </label>
+                    <label class="flex items-center gap-2 text-white text-sm cursor-pointer select-none">
+                        <input type="checkbox" id="edit-is-popular" name="is_popular" class="rounded bg-white/5 border-white/10 text-primary focus:ring-0"/>
+                        Popular
+                    </label>
+                    <label class="flex items-center gap-2 text-white text-sm cursor-pointer select-none">
+                        <input type="checkbox" id="edit-is-latest" name="is_latest" class="rounded bg-white/5 border-white/10 text-primary focus:ring-0"/>
+                        Latest
+                    </label>
+                    <label class="flex items-center gap-2 text-white text-sm cursor-pointer select-none">
+                        <input type="checkbox" id="edit-is-top-rated" name="is_top_rated" class="rounded bg-white/5 border-white/10 text-primary focus:ring-0"/>
+                        Top Rated
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Modal Actions -->
+            <div class="pt-4 border-t border-white/5 flex justify-end gap-3">
+                <button type="button" onclick="closeEditTitleModal()" class="px-6 py-2.5 rounded-lg border border-white/15 text-white hover:bg-white/10 font-bold transition-all text-sm">Cancel</button>
+                <button type="submit" class="px-6 py-2.5 rounded-lg bg-primary-container text-on-primary-container hover:brightness-110 font-bold transition-all text-sm">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const overviewBtn = document.getElementById('tab-overview-btn');
+        const libraryBtn = document.getElementById('tab-library-btn');
+        const overviewPanel = document.getElementById('panel-overview');
+        const libraryPanel = document.getElementById('panel-library');
+        
+        overviewBtn.addEventListener('click', function() {
+            overviewBtn.className = "px-6 py-3 border-b-2 border-primary-container text-primary-container font-bold text-sm transition-all focus:outline-none";
+            libraryBtn.className = "px-6 py-3 border-b-2 border-transparent text-on-surface-variant hover:text-white font-bold text-sm transition-all focus:outline-none flex items-center gap-2";
+            overviewPanel.classList.remove('hidden');
+            overviewPanel.classList.add('block');
+            libraryPanel.classList.remove('block');
+            libraryPanel.classList.add('hidden');
+            localStorage.setItem('admin-active-tab', 'overview');
+        });
+        
+        libraryBtn.addEventListener('click', function() {
+            libraryBtn.className = "px-6 py-3 border-b-2 border-primary-container text-primary-container font-bold text-sm transition-all focus:outline-none flex items-center gap-2";
+            overviewBtn.className = "px-6 py-3 border-b-2 border-transparent text-on-surface-variant hover:text-white font-bold text-sm transition-all focus:outline-none";
+            libraryPanel.classList.remove('hidden');
+            libraryPanel.classList.add('block');
+            overviewPanel.classList.remove('block');
+            overviewPanel.classList.add('hidden');
+            localStorage.setItem('admin-active-tab', 'library');
+        });
+        
+        // Restore active tab
+        const activeTab = localStorage.getItem('admin-active-tab');
+        if (activeTab === 'library') {
+            libraryBtn.click();
+        }
+
+        // Search functionality
+        const searchInput = document.getElementById('catalog-search');
+        if (searchInput) {
+            searchInput.addEventListener('input', applySearchFilter);
+        }
+
+        // Add form submit listener
+        const addForm = document.getElementById('add-title-form');
+        if (addForm) {
+            addForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                handleFormSubmit(this, 'Title added successfully!');
+            });
+        }
+
+        // Edit form submit listener
+        const editForm = document.getElementById('edit-title-form');
+        if (editForm) {
+            editForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                handleFormSubmit(this, 'Title updated successfully!');
+            });
+        }
+
+        // Initialize table row drag and drop
+        setupAdminDragAndDrop();
+    });
+
+    function openAddTitleModal() {
+        const modal = document.getElementById('add-title-modal');
+        modal.classList.remove('opacity-0', 'pointer-events-none');
+    }
+
+    function closeAddTitleModal() {
+        const modal = document.getElementById('add-title-modal');
+        modal.classList.add('opacity-0', 'pointer-events-none');
+    }
+
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeAddTitleModal();
+            closeEditTitleModal();
+        }
+    });
+
+    function openEditTitleModal(button) {
+        const modal = document.getElementById('edit-title-modal');
+        const form = document.getElementById('edit-title-form');
+        
+        const id = button.getAttribute('data-id');
+        form.action = `/admin-dashboard/catalog/edit/${id}/`;
+        
+        document.getElementById('edit-title').value = button.getAttribute('data-title');
+        document.getElementById('edit-description').value = button.getAttribute('data-description');
+        document.getElementById('edit-content-type').value = button.getAttribute('data-content-type');
+        document.getElementById('edit-poster-url').value = button.getAttribute('data-poster-url');
+        document.getElementById('edit-banner-url').value = button.getAttribute('data-banner-url');
+        document.getElementById('edit-video-url').value = button.getAttribute('data-video-url');
+        document.getElementById('edit-rating').value = button.getAttribute('data-rating');
+        document.getElementById('edit-release-year').value = button.getAttribute('data-release-year');
+        document.getElementById('edit-language').value = button.getAttribute('data-language');
+        document.getElementById('edit-duration').value = button.getAttribute('data-duration');
+        document.getElementById('edit-cast').value = button.getAttribute('data-cast');
+        document.getElementById('edit-crew').value = button.getAttribute('data-crew');
+        
+        document.getElementById('edit-is-trending').checked = button.getAttribute('data-is-trending') === 'true';
+        document.getElementById('edit-is-popular').checked = button.getAttribute('data-is-popular') === 'true';
+        document.getElementById('edit-is-latest').checked = button.getAttribute('data-is-latest') === 'true';
+        document.getElementById('edit-is-top-rated').checked = button.getAttribute('data-is-top-rated') === 'true';
+        
+        // Reset all genre checkboxes
+        const checkboxes = document.querySelectorAll('.edit-genre-checkbox');
+        checkboxes.forEach(cb => cb.checked = false);
+        
+        // Check active ones
+        try {
+            const genres = JSON.parse(button.getAttribute('data-genres'));
+            genres.forEach(gid => {
+                const cb = document.getElementById(`edit-genre-${gid}`);
+                if (cb) cb.checked = true;
+            });
+        } catch(e) {
+            console.error(e);
+        }
+        
+        modal.classList.remove('opacity-0', 'pointer-events-none');
+    }
+
+    function closeEditTitleModal() {
+        const modal = document.getElementById('edit-title-modal');
+        modal.classList.add('opacity-0', 'pointer-events-none');
+    }
+
+    function filterByGenre(genreId) {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (genreId) {
+            urlParams.set('genre', genreId);
+        } else {
+            urlParams.delete('genre');
+        }
+        localStorage.setItem('admin-active-tab', 'library');
+        window.location.search = urlParams.toString();
+    }
+
+    function applySearchFilter() {
+        const searchInput = document.getElementById('catalog-search');
+        if (!searchInput) return;
+        const query = searchInput.value.toLowerCase().trim();
+        const rows = document.querySelectorAll('#catalog-table-body tr');
+        rows.forEach(row => {
+            const titleText = row.querySelector('.movie-title-cell').textContent.toLowerCase();
+            if (titleText.includes(query)) {
+                row.classList.remove('hidden');
+            } else {
+                row.classList.add('hidden');
+            }
+        });
+    }
+
+    function showToast(message, type = 'success') {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `glass-panel px-6 py-4 rounded-xl shadow-2xl border flex items-center gap-3 text-sm font-semibold transition-all duration-300 transform translate-y-10 opacity-0 pointer-events-auto cursor-pointer max-w-sm ${
+            type === 'success' 
+                ? 'border-green-500/30 bg-green-500/10 text-green-400' 
+                : 'border-red-500/30 bg-red-500/10 text-red-400'
+        }`;
+        
+        const icon = document.createElement('span');
+        icon.className = 'material-symbols-outlined text-base';
+        icon.innerText = type === 'success' ? 'check_circle' : 'error';
+        
+        const text = document.createElement('span');
+        text.innerText = message;
+        
+        toast.appendChild(icon);
+        toast.appendChild(text);
+        container.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.classList.remove('translate-y-10', 'opacity-0');
+        }, 10);
+        
+        const removeToast = () => {
+            toast.classList.add('opacity-0', 'translate-y-[-10px]');
+            setTimeout(() => {
+                toast.remove();
+            }, 300);
+        };
+        
+        const timeoutId = setTimeout(removeToast, 4000);
+        toast.onclick = () => {
+            clearTimeout(timeoutId);
+            removeToast();
+        };
+    }
+
+    function handleFormSubmit(form, successMessage) {
+        const formData = new FormData(form);
+        const action = form.action || window.location.href;
+        
+        const submitBtn = form.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.dataset.originalText = submitBtn.innerText;
+            submitBtn.innerText = 'Processing...';
+        }
+
+        fetch(action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.text();
+            }
+            throw new Error('Server returned an error.');
+        })
+        .then(html => {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            
+            // Check for backend error alert block
+            const errorEl = doc.querySelector('.bg-red-500\\/10');
+            if (errorEl) {
+                const errorText = errorEl.textContent.trim().replace('error', '').trim();
+                showToast(errorText, 'error');
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = submitBtn.dataset.originalText;
+                }
+                return;
+            }
+
+            const newTableBody = doc.getElementById('catalog-table-body');
+            if (newTableBody) {
+                document.getElementById('catalog-table-body').innerHTML = newTableBody.innerHTML;
+            }
+            
+            const newOverview = doc.getElementById('panel-overview');
+            if (newOverview) {
+                document.getElementById('panel-overview').innerHTML = newOverview.innerHTML;
+            }
+            
+            form.reset();
+            closeAddTitleModal();
+            closeEditTitleModal();
+            
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerText = submitBtn.dataset.originalText;
+            }
+            
+            applySearchFilter();
+            showToast(successMessage, 'success');
+        })
+        .catch(err => {
+            console.error(err);
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerText = submitBtn.dataset.originalText;
+            }
+            showToast('An error occurred while saving.', 'error');
+        });
+    }
+
+    function reorderMovie(movieId, direction) {
+        const contentType = "{{ selected_content_type }}";
+        const genreId = "{{ selected_genre_id|default:'' }}";
+
+        fetch("{% url 'admin_reorder_movie' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({ 
+                movie_id: movieId, 
+                direction: direction,
+                content_type: contentType,
+                genre_id: genreId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                fetch(window.location.href)
+                .then(res => res.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const newTableBody = doc.getElementById('catalog-table-body');
+                    if (newTableBody) {
+                        document.getElementById('catalog-table-body').innerHTML = newTableBody.innerHTML;
+                    }
+                    applySearchFilter();
+                    showToast('Display order updated.', 'success');
+                });
+            } else {
+                showToast(data.message || 'Error reordering title.', 'error');
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            showToast('An error occurred.', 'error');
+        });
+    }
+
+    function deleteMovie(movieId, title) {
+        if (confirm(`Are you sure you want to delete "${title}" from the catalog? This action cannot be undone.`)) {
+            let deleteUrl = "{% url 'admin_delete_movie' 99999 %}".replace('99999', movieId);
+            fetch(deleteUrl, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    fetch(window.location.href)
+                    .then(res => res.text())
+                    .then(html => {
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        
+                        const newTableBody = doc.getElementById('catalog-table-body');
+                        if (newTableBody) {
+                            document.getElementById('catalog-table-body').innerHTML = newTableBody.innerHTML;
+                        }
+                        
+                        const newOverview = doc.getElementById('panel-overview');
+                        if (newOverview) {
+                            document.getElementById('panel-overview').innerHTML = newOverview.innerHTML;
+                        }
+                        
+                        applySearchFilter();
+                        showToast(`"${title}" deleted successfully.`, 'success');
+                    });
+                } else {
+                    showToast(data.message || 'Error deleting title.', 'error');
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                showToast('An error occurred.', 'error');
+            });
+        }
+    }
+
+    function setupAdminDragAndDrop() {
+        const container = document.getElementById('catalog-table-body');
+        if (!container) return;
+
+        let dragItem = null;
+        let isDragging = false;
+        let dragOccurred = false;
+        let startX = 0, startY = 0;
+        
+        container.addEventListener('mousedown', onStart);
+        container.addEventListener('touchstart', onStart, { passive: false });
+
+        function onStart(e) {
+            const handle = e.target.closest('.drag-handle');
+            if (!handle) return;
+
+            const row = e.target.closest('tr');
+            if (!row) return;
+
+            dragItem = row;
+            isDragging = true;
+            dragOccurred = false;
+
+            const touch = e.touches ? e.touches[0] : e;
+            startX = touch.clientX;
+            startY = touch.clientY;
+
+            dragItem.classList.add('dragging');
+
+            window.addEventListener('mousemove', onMove);
+            window.addEventListener('mouseup', onEnd);
+            window.addEventListener('touchmove', onMove, { passive: false });
+            window.addEventListener('touchend', onEnd);
+        }
+
+        function onMove(e) {
+            if (!isDragging || !dragItem) return;
+            
+            const touch = e.touches ? e.touches[0] : e;
+            const diffX = Math.abs(touch.clientX - startX);
+            const diffY = Math.abs(touch.clientY - startY);
+
+            if (diffX > 5 || diffY > 5) {
+                dragOccurred = true;
+            }
+
+            if (dragOccurred) {
+                if (e.cancelable) e.preventDefault();
+
+                // Find row under drag cursor
+                const prevPointerEvents = dragItem.style.pointerEvents;
+                dragItem.style.pointerEvents = 'none';
+                const target = document.elementFromPoint(touch.clientX, touch.clientY);
+                dragItem.style.pointerEvents = prevPointerEvents;
+
+                if (!target) return;
+
+                const siblingRow = target.closest('#catalog-table-body tr');
+                if (siblingRow && siblingRow !== dragItem && siblingRow.parentNode === container) {
+                    const rect = siblingRow.getBoundingClientRect();
+                    const next = (touch.clientY - rect.top) > (rect.height / 2);
+                    container.insertBefore(dragItem, next ? siblingRow.nextSibling : siblingRow);
+                }
+            }
+        }
+
+        function onEnd(e) {
+            if (isDragging && dragItem) {
+                dragItem.classList.remove('dragging');
+                
+                if (dragOccurred) {
+                    saveAdminOrder();
+                }
+            }
+
+            dragItem = null;
+            isDragging = false;
+
+            window.removeEventListener('mousemove', onMove);
+            window.removeEventListener('mouseup', onEnd);
+            window.removeEventListener('touchmove', onMove);
+            window.removeEventListener('touchend', onEnd);
+        }
+
+        function saveAdminOrder() {
+            const rows = Array.from(container.querySelectorAll('tr'));
+            const movieIds = rows.map(row => parseInt(row.getAttribute('data-movie-id'))).filter(id => !isNaN(id));
+            const contentType = "{{ selected_content_type }}";
+            const genreId = "{{ selected_genre_id|default:'' }}";
+
+            fetch("{% url 'admin_reorder_movie' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ 
+                    movie_ids: movieIds,
+                    content_type: contentType,
+                    genre_id: genreId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    showToast('Display order updated.', 'success');
+                    // Refresh view context to ensure button/direction logic aligns
+                    fetch(window.location.href)
+                    .then(res => res.text())
+                    .then(html => {
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        const newTableBody = doc.getElementById('catalog-table-body');
+                        if (newTableBody) {
+                            document.getElementById('catalog-table-body').innerHTML = newTableBody.innerHTML;
+                        }
+                        applySearchFilter();
+                        // Re-initialize drag-and-drop on the new table rows
+                        setupAdminDragAndDrop();
+                    });
+                } else {
+                    showToast(data.message || 'Error updating display order.', 'error');
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                showToast('An error occurred while saving display order.', 'error');
+            });
+        }
+    }
+</script>
+
+<!-- Toast Notification Container -->
+<div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-3 pointer-events-none"></div>
+{% endblock %}

@@ -1,0 +1,32 @@
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.home, name='home'),
+    path('login/', views.login_view, name='login'),
+    path('register/', views.register_view, name='register'),
+    path('logout/', views.logout_view, name='logout'),
+    path('dashboard/', views.dashboard, name='dashboard'),
+    path('movies/', views.movie_list, name='movie_list'),
+    path('movies/<int:movie_id>/', views.movie_detail, name='movie_detail'),
+    path('movies/<int:movie_id>/watch/', views.watch_movie, name='watch_movie'),
+    path('profile/', views.profile_view, name='profile'),
+    path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),
+    path('admin-dashboard/catalog/add/', views.admin_add_movie, name='admin_add_movie'),
+    path('admin-dashboard/catalog/edit/<int:movie_id>/', views.admin_edit_movie, name='admin_edit_movie'),
+    path('admin-dashboard/catalog/delete/<int:movie_id>/', views.admin_delete_movie, name='admin_delete_movie'),
+    path('admin-dashboard/catalog/reorder/', views.admin_reorder_movie, name='admin_reorder_movie'),
+    path('subscription/', views.subscription_plans, name='subscription_plans'),
+    path('search/', views.search_results, name='search_results'),
+    path('api/watch/progress/', views.update_progress, name='update_progress'),
+    path('api/movies/<int:movie_id>/watchlist/', views.toggle_watchlist, name='toggle_watchlist'),
+    path('api/movies/<int:movie_id>/favorite/', views.toggle_favorite, name='toggle_favorite'),
+    path('api/profile/save-genres/', views.save_genres, name='save_genres'),
+    path('api/profile/reorder/', views.user_reorder, name='user_reorder'),
+    path('privacy/', views.privacy_policy, name='privacy_policy'),
+    path('terms/', views.terms_of_service, name='terms_of_service'),
+    path('cookies/', views.cookie_preferences, name='cookie_preferences'),
+    path('help/', views.help_center, name='help_center'),
+    path('contact/', views.contact_us, name='contact'),
+    path('faq/', views.faq, name='faq'),
+]
