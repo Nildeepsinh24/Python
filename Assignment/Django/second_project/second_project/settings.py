@@ -139,3 +139,7 @@ LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'home'
 
+# Enable cross-origin referrers so YouTube embeds work correctly
+SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
+
+
