@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 function Dashboard({ payload, user, csrfToken }) {
   const {
@@ -13,6 +13,32 @@ function Dashboard({ payload, user, csrfToken }) {
 
   const [favoritesState, setFavoritesState] = useState(favorites);
   const [watchlistState, setWatchlistState] = useState(watchlist);
+  const [continueWatchingState, setContinueWatchingState] = useState(continue_watching);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchContinueWatching = () => {
+      fetch('/api/watch/continue-watching/')
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === 'success') {
+            setContinueWatchingState(data.continue_watching);
+          }
+        })
+        .catch(err => console.error(err));
+    };
+
+    fetchContinueWatching();
+
+    const handlePageShow = () => {
+      fetchContinueWatching();
+    };
+    window.addEventListener('pageshow', handlePageShow);
+    return () => {
+      window.removeEventListener('pageshow', handlePageShow);
+    };
+  }, [user]);
 
   const handleCardClick = (id) => {
     window.location.href = `/movies/${id}/`;
@@ -181,7 +207,7 @@ function Dashboard({ payload, user, csrfToken }) {
           </a>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {continue_watching.map(item => (
+          {continueWatchingState.map(item => (
             <div 
               key={item.movie.id}
               onClick={() => window.location.href = `/movies/${item.movie.id}/watch/`}
@@ -210,7 +236,7 @@ function Dashboard({ payload, user, csrfToken }) {
               </div>
             </div>
           ))}
-          {continue_watching.length === 0 && (
+          {continueWatchingState.length === 0 && (
             <div className="col-span-full p-8 glass-panel text-center rounded-xl">
               <p className="text-on-surface-variant text-sm">You haven't watched any movies yet. Explore titles to begin!</p>
             </div>

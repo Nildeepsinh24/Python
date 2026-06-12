@@ -19,6 +19,32 @@ function Home({ payload, user, csrfToken }) {
   const [showModal, setShowModal] = useState(initialShowGenreModal);
   const [selectedModalGenres, setSelectedModalGenres] = useState([]);
   const [modalError, setModalError] = useState('');
+  const [continueWatchingState, setContinueWatchingState] = useState(continue_watching);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchContinueWatching = () => {
+      fetch('/api/watch/continue-watching/')
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === 'success') {
+            setContinueWatchingState(data.continue_watching);
+          }
+        })
+        .catch(err => console.error(err));
+    };
+
+    fetchContinueWatching();
+
+    const handlePageShow = () => {
+      fetchContinueWatching();
+    };
+    window.addEventListener('pageshow', handlePageShow);
+    return () => {
+      window.removeEventListener('pageshow', handlePageShow);
+    };
+  }, [user]);
 
   // Synchronize dynamic watchlist actions in Home components
   const toggleWatchlist = (e, movieId) => {
@@ -151,14 +177,14 @@ function Home({ payload, user, csrfToken }) {
         {selectedGenre === 'all' ? (
           <div className="space-y-section-gap">
             {/* Continue Watching */}
-            {user && continue_watching.length > 0 && (
+            {user && continueWatchingState.length > 0 && (
               <section className="pl-gutter md:pl-container-padding-desktop">
                 <h2 className="font-headline-md text-headline-md mb-6 flex items-center gap-2 text-white">
                   Continue Watching
                   <span className="material-symbols-outlined text-primary-container">arrow_forward_ios</span>
                 </h2>
                 <div className="flex gap-gutter overflow-x-auto hide-scrollbar pb-8">
-                  {continue_watching.map(item => {
+                  {continueWatchingState.map(item => {
                     const currentMovieState = moviesState.find(m => m.id === item.movie.id) || item.movie;
                     return (
                       <div key={item.movie.id} className="flex-none w-[320px] aspect-video relative group cursor-pointer transition-all">

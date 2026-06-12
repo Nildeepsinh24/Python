@@ -19,6 +19,7 @@ urlpatterns = [
     path('subscription/', views.subscription_plans, name='subscription_plans'),
     path('search/', views.search_results, name='search_results'),
     path('api/watch/progress/', views.update_progress, name='update_progress'),
+    path('api/watch/continue-watching/', views.get_continue_watching, name='get_continue_watching'),
     path('api/movies/<int:movie_id>/watchlist/', views.toggle_watchlist, name='toggle_watchlist'),
     path('api/movies/<int:movie_id>/favorite/', views.toggle_favorite, name='toggle_favorite'),
     path('api/profile/save-genres/', views.save_genres, name='save_genres'),

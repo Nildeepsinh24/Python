@@ -321,6 +321,8 @@ def movie_detail(request, movie_id):
 def watch_movie(request, movie_id):
     movie = get_object_or_404(Movie, id=movie_id)
     history, created = WatchHistory.objects.get_or_create(user=request.user, movie=movie)
+    if not created:
+        history.save()  # update watched_at timestamp
     
     related_movies = Movie.objects.filter(genres__in=movie.genres.all()).exclude(id=movie.id).distinct()[:4]
     if not related_movies.exists():
@@ -360,6 +362,20 @@ def update_progress(request):
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=400)
+
+@login_required
+def get_continue_watching(request):
+    try:
+        watchlist_ids = set(request.user.profile.watchlist.values_list('id', flat=True))
+        favorites_ids = set(request.user.profile.favorites.values_list('id', flat=True))
+        continue_watching = WatchHistory.objects.filter(user=request.user).select_related('movie')[:4]
+        data = [{
+            'movie': serialize_movie(item.movie, watchlist_ids, favorites_ids),
+            'progress': item.progress
+        } for item in continue_watching]
+        return JsonResponse({'status': 'success', 'continue_watching': data})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
 
 @login_required
 @csrf_exempt
