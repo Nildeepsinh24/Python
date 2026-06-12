@@ -21,7 +21,7 @@ function Watch({ payload, user, csrfToken }) {
   const [duration, setDuration] = useState(0);
   const [isMuted, setIsMuted] = useState(false);
   const [volume, setVolume] = useState(0.75);
-  const [progressPercent, setProgressPercent] = useState(0);
+  const [progressPercent, setProgressPercent] = useState(initialProgress);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [uiVisible, setUiVisible] = useState(true);
   
@@ -151,6 +151,8 @@ function Watch({ payload, user, csrfToken }) {
     setCurrentTime(video.currentTime);
     setProgressPercent(percentage * 100);
     showUI();
+    // Sync immediately on seek (using setTimeout to allow currentTime to settle)
+    setTimeout(() => syncProgress(true), 50);
   };
 
   const toggleFullscreen = () => {
@@ -267,9 +269,9 @@ function Watch({ payload, user, csrfToken }) {
             <div 
               ref={progressContainerRef}
               onClick={handleProgressClick}
-              className="progress-container group relative w-full mb-4 sm:mb-6 cursor-pointer"
+              className="progress-container group relative w-full py-2 mb-2 sm:mb-4 cursor-pointer"
             >
-              <div className="progress-track w-full bg-white/20 rounded-full overflow-hidden">
+              <div className="progress-track w-full bg-white/20 h-1.5 rounded-full overflow-hidden">
                 <div className="h-full bg-primary-container relative" style={{ width: `${progressPercent}%` }}>
                   <div className="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-primary-container rounded-full shadow-[0_0_15px_#e50914] scale-0 group-hover:scale-100 transition-transform"></div>
                 </div>

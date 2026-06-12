@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.cache import never_cache
 from django.db.models import Q, Max
 from .models import Genre, Movie, UserProfile, WatchHistory
 import json
@@ -44,6 +45,7 @@ def serialize_genre(g):
         'slug': g.slug
     }
 
+@never_cache
 def home(request):
     featured_movie = Movie.objects.filter(is_trending=True).order_by('display_order').first()
     if not featured_movie:
@@ -162,6 +164,7 @@ def logout_view(request):
     return redirect('home')
 
 @login_required
+@never_cache
 def dashboard(request):
     profile = request.user.profile
     watchlist = list(profile.watchlist.all())
@@ -364,6 +367,7 @@ def update_progress(request):
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=400)
 
 @login_required
+@never_cache
 def get_continue_watching(request):
     try:
         watchlist_ids = set(request.user.profile.watchlist.values_list('id', flat=True))

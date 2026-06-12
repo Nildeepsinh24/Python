@@ -25,7 +25,7 @@ function Home({ payload, user, csrfToken }) {
     if (!user) return;
 
     const fetchContinueWatching = () => {
-      fetch('/api/watch/continue-watching/')
+      fetch('/api/watch/continue-watching/?_t=' + Date.now())
         .then(res => res.json())
         .then(data => {
           if (data.status === 'success') {
