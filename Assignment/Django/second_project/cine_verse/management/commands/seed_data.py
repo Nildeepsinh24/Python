@@ -24,6 +24,8 @@ class Command(BaseCommand):
             {'name': 'Comedy', 'slug': 'comedy'},
             {'name': 'Horror', 'slug': 'horror'},
             {'name': 'Adventure', 'slug': 'adventure'},
+            {'name': 'Crime', 'slug': 'crime'},
+            {'name': 'Mystery', 'slug': 'mystery'},
         ]
         
         genres_map = {}
@@ -74,6 +76,10 @@ class Command(BaseCommand):
             'Ted Lasso': 'https://lh4.googleusercontent.com/proxy/0KyQhkSlogOqldlFAMeu9xrUyJ2kfb6jLRwAnnhrbIXQgidiWbSK1NuD7Egl7ZfKN6wrSEQXMr0rHjBAxT51uP92Lpc',
             'The Legend of Vox Machina': 'https://images.wallpapersden.com/image/download/the-legend-of-vox-machina-season-2_bmVua2aUmZqaraWkpJRobWllrWdma2U.jpg',
             'Wednesday': 'https://images.wallpapersden.com/image/download/netflix-wednesday-2022_bW1mbm2UmZqaraWkpJRmbmdlrWZlbWU.jpg',
+            'The Family Man': 'https://image.tmdb.org/t/p/original/bGukv7oQqTuD5PY1FaSv5YSqYln.jpg',
+            'Asur: Welcome to Your Dark Side': 'https://image.tmdb.org/t/p/original/9AZnfGUnPZBBJJDtYk5Uoxw4IMf.jpg',
+            'Scam 1992: The Harshad Mehta Story': 'https://image.tmdb.org/t/p/original/dFTuVCjMMLCZB8mobKSwu5KC2bq.jpg',
+            'Farzi': 'https://image.tmdb.org/t/p/original/8Y4nn8xevdXGGfk8GN38hnc7Qa6.jpg',
         }
             
         self.stdout.write("Creating movies & series...")
@@ -877,6 +883,66 @@ class Command(BaseCommand):
                 "display_order": 530,
                 "genres": ["action", "adventure", "comedy"],
                 "is_latest": True
+            },
+            {
+                "title": "Scam 1992: The Harshad Mehta Story",
+                "description": "Set in the 1980s and 1990s Bombay, the series follows the meteoric rise and subsequent downfall of Harshad Mehta, a charismatic stockbroker who became known as the \"Bachchan of the BSE.\" Based on the book by journalists Sucheta Dalal and Debashish Basu, it depicts how Mehta masterminded India's biggest financial scam by exploiting loopholes in the banking system, leading to a massive stock market crash, a landmark investigation by the CBI, and his own eventual downfall.",
+                "poster_url": "https://image.tmdb.org/t/p/original/dFTuVCjMMLCZB8mobKSwu5KC2bq.jpg",
+                "banner_url": "https://image.tmdb.org/t/p/original/tTYP1npvBU90NthceezScfXGiOl.jpg",
+                "rating": 9.4,
+                "release_year": 2020,
+                "language": "Hindi",
+                "duration": "TV Series",
+                "cast": "Pratik Gandhi, Shreya Dhanwanthary, Hemant Kher, Chirag Vohra, Rajat Kapoor, Satish Kaushik, Nikhil Dwivedi, Anant Mahadevan, Sharib Hashmi",
+                "crew": "Director: Hansal Mehta, Jai Mehta",
+                "display_order": 540,
+                "genres": ["drama", "thriller"],
+                "is_popular": True, "is_top_rated": True
+            },
+            {
+                "title": "Farzi",
+                "description": "Sunny, a brilliant but disillusioned artist struggling to keep his grandfather's printing press afloat, decides to use his skills to create high-quality counterfeit currency. Along with his best friend Firoz, they plunge into the lucrative and perilous underworld of counterfeiting. Soon, they are caught in a deadly cat-and-mouse game between Michael, a relentless task force officer, and Mansoor, a ruthless gangster running a global smuggling syndicate.",
+                "poster_url": "https://image.tmdb.org/t/p/original/8Y4nn8xevdXGGfk8GN38hnc7Qa6.jpg",
+                "banner_url": "https://image.tmdb.org/t/p/original/rGkjtv6UdL1ysDmZuBjbNl3PAA1.jpg",
+                "rating": 8.4,
+                "release_year": 2023,
+                "language": "Hindi",
+                "duration": "TV Series",
+                "cast": "Shahid Kapoor, Vijay Sethupathi, Kay Kay Menon, Raashii Khanna, Bhuvan Arora, Amol Palekar, Regina Cassandra, Zakir Hussain, Kubbra Sait",
+                "crew": "Director: Raj Nidimoru, Krishna D.K.",
+                "display_order": 550,
+                "genres": ["action", "drama", "thriller", "comedy", "crime"],
+                "is_trending": True, "is_popular": True
+            },
+            {
+                "title": "The Family Man",
+                "description": "Srikant Tiwari is a middle-class man who seems to lead an ordinary, mundane life. In reality, he is a senior analyst for TASC, a secret espionage wing of the National Investigation Agency. While working under extreme pressure to protect the nation from terrorist threats and high-stakes conspiracies, Srikant must also navigate the everyday challenges of family life, keeping his secret career hidden from his suspicious wife and children.",
+                "poster_url": "https://image.tmdb.org/t/p/original/bGukv7oQqTuD5PY1FaSv5YSqYln.jpg",
+                "banner_url": "https://image.tmdb.org/t/p/original/eEzKigDI64OomZV6VTJvoPGmVu1.jpg",
+                "rating": 8.7,
+                "release_year": 2019,
+                "language": "Hindi",
+                "duration": "TV Series",
+                "cast": "Manoj Bajpayee, Priyamani, Sharib Hashmi, Samantha Ruth Prabhu, Ashlesha Thakur, Vedant Sinha, Shreya Dhanwanthary, Sharad Kelkar, Sunny Hinduja, Neeraj Madhav",
+                "crew": "Director: Raj Nidimoru, Krishna D.K., Suparn S. Verma",
+                "display_order": 560,
+                "genres": ["action", "drama", "thriller", "comedy"],
+                "is_trending": True, "is_popular": True, "is_top_rated": True
+            },
+            {
+                "title": "Asur: Welcome to Your Dark Side",
+                "description": "Set against the mystical backdrop of Varanasi, this psychological thriller follows Nikhil Nair, a former forensic expert turned teacher, who is called back to the CBI to assist his mentor Dhananjay Rajpoot. Together, they confront a mysterious, brilliant serial killer who uses mythological concepts from Hindu philosophy to justify his brutal murders, claiming to be the incarnation of the demon Kali.",
+                "poster_url": "https://image.tmdb.org/t/p/original/9AZnfGUnPZBBJJDtYk5Uoxw4IMf.jpg",
+                "banner_url": "https://image.tmdb.org/t/p/original/eXUr34XTqYaDwyOerFpL6sUOgDL.jpg",
+                "rating": 8.5,
+                "release_year": 2020,
+                "language": "Hindi",
+                "duration": "TV Series",
+                "cast": "Arshad Warsi, Barun Sobti, Anupriya Goenka, Riddhi Dogra, Amey Wagh, Sharib Hashmi, Abhishek Chauhan, Meiyang Chang",
+                "crew": "Director: Oni Sen",
+                "display_order": 570,
+                "genres": ["drama", "thriller", "mystery", "crime"],
+                "is_trending": True, "is_popular": True, "is_top_rated": True
             }
         ]
 
