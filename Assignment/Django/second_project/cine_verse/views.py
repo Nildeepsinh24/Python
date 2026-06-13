@@ -35,6 +35,7 @@ def serialize_movie(m, watchlist_ids=set(), favorites_ids=set()):
         'is_latest': m.is_latest,
         'is_top_rated': m.is_top_rated,
         'parent_id': m.parent_id,
+        'parent_title': m.parent.title if m.parent else None,
         'part_number': m.part_number,
         'part_name': m.part_name,
     }

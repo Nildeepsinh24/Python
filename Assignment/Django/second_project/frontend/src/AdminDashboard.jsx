@@ -25,6 +25,7 @@ function AdminDashboard({ payload, csrfToken }) {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingMovie, setEditingMovie] = useState(null);
+  const [addFormPrefill, setAddFormPrefill] = useState(null);
 
   // Drag and drop state
   const [draggedMovieId, setDraggedMovieId] = useState(null);
@@ -212,6 +213,24 @@ function AdminDashboard({ payload, csrfToken }) {
       genreIds: movieGenreIds
     });
     setIsEditModalOpen(true);
+  };
+
+  // Open Add Modal with Prefilled Sequel/Season Info
+  const handleAddSequelSeason = (parentMovie) => {
+    const movieGenreIds = parentMovie.genres.map(slug => {
+      const found = genres.find(g => g.slug === slug);
+      return found ? found.id : null;
+    }).filter(Boolean);
+
+    setAddFormPrefill({
+      parent_id: parentMovie.id,
+      content_type: parentMovie.content_type,
+      language: parentMovie.language,
+      cast: parentMovie.cast,
+      crew: parentMovie.crew,
+      genreIds: movieGenreIds,
+    });
+    setIsAddModalOpen(true);
   };
 
   // Filter client-side by search query
@@ -483,7 +502,10 @@ function AdminDashboard({ payload, csrfToken }) {
                   />
                 </div>
                 <button
-                  onClick={() => setIsAddModalOpen(true)}
+                  onClick={() => {
+                    setAddFormPrefill(null);
+                    setIsAddModalOpen(true);
+                  }}
                   className="px-4 py-2 bg-primary-container text-white rounded-lg font-bold text-sm hover:brightness-110 transition-all flex items-center gap-1.5 cursor-pointer"
                 >
                   <span className="material-symbols-outlined text-sm">add</span> Add Title
@@ -571,6 +593,12 @@ function AdminDashboard({ payload, csrfToken }) {
                           <p className="text-xs text-on-surface-variant mt-1">
                             {movie.content_type.toUpperCase()} • {movie.release_year} • {movie.duration}
                           </p>
+                          {movie.parent_title && (
+                            <p className="text-[10px] text-primary-container mt-1 flex items-center gap-1 font-semibold opacity-95">
+                              <span className="material-symbols-outlined text-[12px]">link</span>
+                              Part of: <span className="text-white/80 font-bold">{movie.parent_title}</span>{movie.part_name ? ` (${movie.part_name})` : ''}
+                            </p>
+                          )}
                         </div>
                       </td>
                       <td className="px-6 py-4 text-sm text-on-surface-variant text-white/70">
@@ -603,6 +631,15 @@ function AdminDashboard({ payload, csrfToken }) {
                         </div>
                       </td>
                       <td className="px-6 py-4 text-right flex items-center justify-end gap-2">
+                        {!movie.parent_id && (
+                          <button
+                            onClick={() => handleAddSequelSeason(movie)}
+                            className="p-2 hover:bg-primary-container/20 text-primary-container rounded-lg transition-colors inline-flex items-center justify-center cursor-pointer"
+                            title={movie.content_type === 'series' ? "Add Season" : "Add Sequel"}
+                          >
+                            <span className="material-symbols-outlined text-sm">playlist_add</span>
+                          </button>
+                        )}
                         <button
                           onClick={() => openEditModal(movie)}
                           className="p-2 hover:bg-white/10 text-white rounded-lg transition-colors inline-flex items-center justify-center cursor-pointer"
@@ -647,8 +684,8 @@ function AdminDashboard({ payload, csrfToken }) {
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
-            
-            <form
+                 <form
+              key={addFormPrefill ? `prefill-${addFormPrefill.parent_id}` : 'new-form'}
               action="/admin-dashboard/catalog/add/"
               method="POST"
               onSubmit={(e) => handleFormSubmit(e, 'Title added successfully!')}
@@ -663,7 +700,11 @@ function AdminDashboard({ payload, csrfToken }) {
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-on-surface-variant mb-1 uppercase text-white/70">Content Type</label>
-                  <select name="content_type" className="w-full bg-[#1A1C1E] border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-container transition-colors">
+                  <select
+                    name="content_type"
+                    defaultValue={addFormPrefill?.content_type || 'movie'}
+                    className="w-full bg-[#1A1C1E] border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-container transition-colors"
+                  >
                     <option value="movie">Movie</option>
                     <option value="series">Series (TV Show)</option>
                   </select>
@@ -701,18 +742,22 @@ function AdminDashboard({ payload, csrfToken }) {
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-on-surface-variant mb-1 uppercase text-white/70">Language</label>
-                  <input type="text" name="language" required className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-container transition-colors" defaultValue="English" />
+                  <input type="text" name="language" required className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-container transition-colors" defaultValue={addFormPrefill?.language || 'English'} />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-on-surface-variant mb-1 uppercase text-white/70">Duration</label>
-                  <input type="text" name="duration" required className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-container transition-colors" defaultValue="2h 15m" placeholder="e.g. 2h 15m or TV Series" />
+                  <input type="text" name="duration" required className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-container transition-colors" defaultValue={addFormPrefill?.content_type === 'series' ? 'TV Series' : '2h 15m'} placeholder="e.g. 2h 15m or TV Series" />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-white/5 p-4 rounded-xl border border-white/5">
                 <div>
                   <label className="block text-xs font-bold text-on-surface-variant mb-1 uppercase text-white/70">Parent Franchise / Series</label>
-                  <select name="parent_id" className="w-full bg-[#1A1C1E] border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-container transition-colors">
+                  <select
+                    name="parent_id"
+                    defaultValue={addFormPrefill?.parent_id || 'none'}
+                    className="w-full bg-[#1A1C1E] border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-container transition-colors"
+                  >
                     <option value="none">None (Is a Parent / Standalone)</option>
                     {parent_candidates.map(p => (
                       <option key={p.id} value={p.id}>{p.title}</option>
@@ -732,11 +777,11 @@ function AdminDashboard({ payload, csrfToken }) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-on-surface-variant mb-1 uppercase text-white/70">Cast (Comma separated)</label>
-                  <input type="text" name="cast" required className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-container transition-colors" placeholder="Actor 1, Actor 2" />
+                  <input type="text" name="cast" required className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-container transition-colors" placeholder="Actor 1, Actor 2" defaultValue={addFormPrefill?.cast || ''} />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-on-surface-variant mb-1 uppercase text-white/70">Crew (Comma separated)</label>
-                  <input type="text" name="crew" required className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-container transition-colors" defaultValue="Director: John Doe" />
+                  <input type="text" name="crew" required className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-container transition-colors" defaultValue={addFormPrefill?.crew || 'Director: John Doe'} />
                 </div>
               </div>
 
@@ -745,7 +790,13 @@ function AdminDashboard({ payload, csrfToken }) {
                 <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 bg-white/5 p-4 rounded-xl border border-white/5">
                   {genres.map(g => (
                     <label key={g.id} className="flex items-center gap-2 text-white text-sm cursor-pointer select-none">
-                      <input type="checkbox" name="genres" value={g.id} className="rounded bg-white/5 border-white/10 text-primary focus:ring-0 focus:ring-offset-0 cursor-pointer" />
+                      <input
+                        type="checkbox"
+                        name="genres"
+                        value={g.id}
+                        defaultChecked={addFormPrefill?.genreIds?.includes(g.id)}
+                        className="rounded bg-white/5 border-white/10 text-primary focus:ring-0 focus:ring-offset-0 cursor-pointer"
+                      />
                       {g.name}
                     </label>
                   ))}
