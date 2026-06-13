@@ -190,7 +190,7 @@ function Profile({ payload, user, csrfToken }) {
               <div className="flex justify-between items-center">
                 <span className="text-white/60">Monthly Fee</span>
                 <span className="font-bold text-white">
-                  {profile.subscription_plan === 'Basic' ? '$8.99' : (profile.subscription_plan === 'Standard' ? '$13.99' : '$19.99')}
+                  {profile.subscription_plan === 'Basic' ? '₹199' : (profile.subscription_plan === 'Standard' ? '₹499' : '₹649')}
                 </span>
               </div>
               <div className="flex justify-between items-center">

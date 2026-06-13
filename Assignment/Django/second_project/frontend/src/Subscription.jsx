@@ -34,7 +34,7 @@ function Subscription({ payload, csrfToken }) {
             <h3 className="font-headline-md text-headline-md text-white text-xl font-bold">Basic</h3>
           </div>
           <div className="mb-8">
-            <span className="font-headline-lg text-headline-lg text-white text-3xl font-extrabold">$8.99</span>
+            <span className="font-headline-lg text-headline-lg text-white text-3xl font-extrabold">₹199</span>
             <span className="text-on-surface-variant text-sm">/month</span>
           </div>
           <ul className="space-y-4 mb-10 flex-grow">
@@ -70,7 +70,7 @@ function Subscription({ payload, csrfToken }) {
             <h3 className="font-headline-md text-headline-md text-white text-xl font-bold">Premium</h3>
           </div>
           <div className="mb-8">
-            <span className="font-headline-lg text-headline-lg text-white text-3xl font-extrabold">$19.99</span>
+            <span className="font-headline-lg text-headline-lg text-white text-3xl font-extrabold">₹649</span>
             <span className="text-on-surface-variant text-sm">/month</span>
           </div>
           <ul className="space-y-4 mb-10 flex-grow">
@@ -111,7 +111,7 @@ function Subscription({ payload, csrfToken }) {
             <h3 className="font-headline-md text-headline-md text-white text-xl font-bold">Standard</h3>
           </div>
           <div className="mb-8">
-            <span className="font-headline-lg text-headline-lg text-white text-3xl font-extrabold">$13.99</span>
+            <span className="font-headline-lg text-headline-lg text-white text-3xl font-extrabold">₹499</span>
             <span className="text-on-surface-variant text-sm">/month</span>
           </div>
           <ul className="space-y-4 mb-10 flex-grow">
@@ -158,9 +158,9 @@ function Subscription({ payload, csrfToken }) {
             <tbody className="font-body-md text-xs sm:text-sm md:text-body-md">
               <tr className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
                 <td class="py-4 md:py-6 text-white font-medium">Monthly Price</td>
-                <td class="py-4 md:py-6 text-center text-on-surface-variant">$8.99</td>
-                <td class="py-4 md:py-6 text-center text-on-surface-variant">$13.99</td>
-                <td class="py-4 md:py-6 text-center text-white font-bold">$19.99</td>
+                <td class="py-4 md:py-6 text-center text-on-surface-variant">₹199</td>
+                <td class="py-4 md:py-6 text-center text-on-surface-variant">₹499</td>
+                <td class="py-4 md:py-6 text-center text-white font-bold">₹649</td>
               </tr>
               <tr className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
                 <td class="py-4 md:py-6 text-white font-medium">Video Quality</td>
