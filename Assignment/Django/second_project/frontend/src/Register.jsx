@@ -124,18 +124,23 @@ function Register({ payload, csrfToken }) {
             <div className="space-y-2 pt-2 border-t border-white/5">
               <label className="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-widest block">Choose Subscription Plan</label>
               <div className="grid grid-cols-3 gap-2">
-                {['Basic', 'Standard', 'Premium'].map(plan => (
+                {[
+                  { name: 'Basic', price: '₹199/mo' }, 
+                  { name: 'Standard', price: '₹499/mo' }, 
+                  { name: 'Premium', price: '₹649/mo' }
+                ].map(plan => (
                   <button
-                    key={plan}
+                    key={plan.name}
                     type="button"
-                    onClick={() => setSelectedPlan(plan)}
-                    className={`py-2 px-1 rounded-lg text-xs font-bold transition-all border cursor-pointer ${
-                      selectedPlan === plan 
+                    onClick={() => setSelectedPlan(plan.name)}
+                    className={`py-2 px-1 rounded-lg flex flex-col items-center justify-center gap-0.5 transition-all border cursor-pointer ${
+                      selectedPlan === plan.name 
                         ? 'bg-primary-container text-white border-primary-container shadow' 
                         : 'bg-white/5 border-white/10 text-white hover:bg-white/10'
                     }`}
                   >
-                    {plan}
+                    <span className="text-xs font-bold">{plan.name}</span>
+                    <span className={`text-[10px] ${selectedPlan === plan.name ? 'text-white/90' : 'text-on-surface-variant'}`}>{plan.price}</span>
                   </button>
                 ))}
               </div>

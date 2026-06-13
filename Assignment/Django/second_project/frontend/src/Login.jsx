@@ -106,11 +106,6 @@ function Login({ payload, csrfToken }) {
             </button>
           </form>
           
-          <div className="mt-8 flex items-center justify-between text-xs text-on-surface-variant border-t border-white/5 pt-6">
-            <span>Demo User: <strong className="text-white">marcus</strong></span>
-            <span>Demo Password: <strong className="text-white">marcus123</strong></span>
-          </div>
-
           <div className="mt-8 pt-6 border-t border-white/5 space-y-6">
             <p className="text-center text-on-surface-variant text-body-md">
               New to CineVerse? 
