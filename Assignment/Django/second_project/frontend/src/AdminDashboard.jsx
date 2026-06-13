@@ -349,7 +349,7 @@ function AdminDashboard({ payload, csrfToken }) {
                 </span>
               </div>
               <h3 className="text-on-surface-variant font-label-caps mb-1 text-xs uppercase tracking-wider font-bold">Est. Monthly Revenue</h3>
-              <p className="text-3xl font-headline-md font-bold text-white">${monthly_revenue}</p>
+              <p className="text-3xl font-headline-md font-bold text-white">₹{monthly_revenue}</p>
             </div>
           </section>
 
