@@ -197,20 +197,20 @@ function MovieDetail({ payload, user, csrfToken }) {
                   <h3 className="text-xs font-bold tracking-widest text-white/40 uppercase mb-4">
                     {movie.content_type === 'series' ? 'Seasons' : 'Movies in this Collection'}
                   </h3>
-                  <div className="space-y-4">
+                  <div className="flex flex-row gap-6 overflow-x-auto pb-4 custom-scrollbar scroll-smooth">
                     {parts.map(part => {
                       const isActive = part.id === movie.id;
                       return (
                         <div 
                           key={part.id}
                           onClick={() => window.location.href = `/movies/${part.id}/`}
-                          className={`flex flex-col sm:flex-row gap-4 p-4 rounded-2xl border transition-all duration-300 cursor-pointer group ${
+                          className={`w-72 sm:w-80 flex-shrink-0 flex flex-col rounded-2xl border transition-all duration-300 cursor-pointer group bg-white/5 ${
                             isActive 
-                              ? 'bg-primary-container/10 border-primary-container shadow-lg shadow-primary-container/5' 
-                              : 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20'
+                              ? 'border-primary-container ring-2 ring-primary-container/30 shadow-lg shadow-primary-container/10' 
+                              : 'border-white/10 hover:bg-white/10 hover:border-white/20'
                           }`}
                         >
-                          <div className="relative w-full sm:w-56 md:w-64 aspect-video rounded-xl overflow-hidden flex-shrink-0 bg-black/40">
+                          <div className="relative w-full aspect-video rounded-t-xl overflow-hidden bg-black/40">
                             <img 
                               src={part.banner_url || part.poster_url} 
                               alt={part.title}
@@ -223,20 +223,22 @@ function MovieDetail({ payload, user, csrfToken }) {
                               {part.part_name || (movie.content_type === 'series' ? `Season ${part.part_number}` : `Part ${part.part_number}`)}
                             </div>
                           </div>
-                          <div className="flex flex-col justify-center text-left min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                              <h4 className={`font-bold text-base md:text-lg truncate ${isActive ? 'text-primary-container' : 'text-white group-hover:text-primary-container transition-colors'}`}>
-                                {part.title}
-                              </h4>
-                              {part.rating > 0 && (
-                                <span className="text-[10px] bg-white/5 border border-white/10 px-1.5 py-0.5 rounded text-amber-400 flex items-center font-bold">
-                                  <span className="material-symbols-outlined text-[10px] mr-0.5" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                                  {part.rating}
-                                </span>
-                              )}
+                          <div className="p-4 flex flex-col justify-between flex-grow text-left">
+                            <div>
+                              <div className="flex items-center justify-between gap-2 mb-1">
+                                <h4 className={`font-bold text-sm sm:text-base truncate flex-grow ${isActive ? 'text-primary-container' : 'text-white group-hover:text-primary-container transition-colors'}`}>
+                                  {part.title}
+                                </h4>
+                                {part.rating > 0 && (
+                                  <span className="text-[10px] bg-white/5 border border-white/10 px-1.5 py-0.5 rounded text-amber-400 flex items-center font-bold flex-shrink-0">
+                                    <span className="material-symbols-outlined text-[10px] mr-0.5" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                                    {part.rating}
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-[11px] text-white/50 mb-2 font-medium">{part.release_year} • {part.duration}</p>
+                              <p className="text-xs text-white/70 line-clamp-2 leading-relaxed">{part.description}</p>
                             </div>
-                            <p className="text-xs text-white/50 mb-2 font-medium">{part.release_year} • {part.duration}</p>
-                            <p className="text-xs text-white/70 line-clamp-2 leading-relaxed">{part.description}</p>
                           </div>
                         </div>
                       );
