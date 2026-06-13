@@ -537,11 +537,11 @@ def admin_dashboard(request):
     revenue = 0
     for p in UserProfile.objects.all():
         if p.subscription_plan == 'Basic':
-            revenue += 8.99
+            revenue += 199
         elif p.subscription_plan == 'Standard':
-            revenue += 13.99
+            revenue += 499
         elif p.subscription_plan == 'Premium':
-            revenue += 19.99
+            revenue += 649
             
     users = User.objects.all().select_related('profile')
     
@@ -578,6 +578,11 @@ def admin_dashboard(request):
     # Fetch parent candidates (movies/series without parents)
     parent_candidates = Movie.objects.filter(parent=None).order_by('title')
 
+    # Calculate user retention dynamically
+    thirty_days_ago = now - datetime.timedelta(days=30)
+    active_users = User.objects.filter(last_login__gte=thirty_days_ago).count()
+    user_retention = int((active_users / total_users) * 100) if total_users > 0 else 100
+
     payload = {
         'total_users': total_users,
         'total_movies': total_movies,
@@ -595,6 +600,7 @@ def admin_dashboard(request):
         'selected_content_type': selected_content_type,
         'selected_genre_id': int(selected_genre_id) if selected_genre_id else None,
         'growth_data': growth_data,
+        'user_retention': user_retention,
         'parent_candidates': [serialize_movie(m, watchlist_ids, favorites_ids) for m in parent_candidates],
     }
     context = {
@@ -793,9 +799,9 @@ def admin_add_movie(request):
             total_movies = Movie.objects.count()
             revenue = 0
             for p in UserProfile.objects.all():
-                if p.subscription_plan == 'Basic': revenue += 8.99
-                elif p.subscription_plan == 'Standard': revenue += 13.99
-                elif p.subscription_plan == 'Premium': revenue += 19.99
+                if p.subscription_plan == 'Basic': revenue += 199
+                elif p.subscription_plan == 'Standard': revenue += 499
+                elif p.subscription_plan == 'Premium': revenue += 649
             users = User.objects.all().select_related('profile')
             movies = Movie.objects.all().order_by('display_order')
             genres = Genre.objects.all()
@@ -974,9 +980,9 @@ def admin_edit_movie(request, movie_id):
             total_movies = Movie.objects.count()
             revenue = 0
             for p in UserProfile.objects.all():
-                if p.subscription_plan == 'Basic': revenue += 8.99
-                elif p.subscription_plan == 'Standard': revenue += 13.99
-                elif p.subscription_plan == 'Premium': revenue += 19.99
+                if p.subscription_plan == 'Basic': revenue += 199
+                elif p.subscription_plan == 'Standard': revenue += 499
+                elif p.subscription_plan == 'Premium': revenue += 649
             users = User.objects.all().select_related('profile')
             movies = Movie.objects.all().order_by('display_order')
             genres = Genre.objects.all()
