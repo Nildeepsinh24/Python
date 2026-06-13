@@ -86,9 +86,9 @@ function MovieDetail({ payload, user, csrfToken }) {
 
       <div className="relative z-10">
         {/* Main Columns */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 lg:gap-12 mb-16">
           {/* Left Column: Poster Image */}
-          <div className="lg:col-span-3 flex justify-center lg:justify-start">
+          <div className="md:col-span-4 lg:col-span-3 flex justify-center md:justify-start lg:justify-start">
             <div className="w-64 lg:w-full aspect-[2/3] rounded-2xl overflow-hidden shadow-2xl shadow-black/60 border border-white/10 bg-black/40">
               <img 
                 src={movie.poster_url} 
@@ -99,7 +99,7 @@ function MovieDetail({ payload, user, csrfToken }) {
           </div>
 
           {/* Center Column: Title & Overview */}
-          <div className="lg:col-span-6 flex flex-col justify-center">
+          <div className="md:col-span-8 lg:col-span-6 flex flex-col justify-center">
             <div className="flex flex-wrap items-center gap-3 mb-4">
               <span className="bg-primary-container text-white text-[10px] font-bold px-2.5 py-0.5 rounded tracking-widest uppercase">
                 {movie.content_type === 'series' ? 'TV Series' : 'Movie'}
@@ -240,7 +240,7 @@ function MovieDetail({ payload, user, csrfToken }) {
           </div>
 
           {/* Right Column: Metadata Card */}
-          <div className="lg:col-span-3">
+          <div className="md:col-span-12 lg:col-span-3">
             <div className="glass-panel p-6 rounded-2xl relative overflow-hidden">
               <h3 className="font-headline-md text-body-lg mb-6 text-white">Details</h3>
               <div className="space-y-4 text-sm">
