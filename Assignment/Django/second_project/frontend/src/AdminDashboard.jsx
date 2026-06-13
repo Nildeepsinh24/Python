@@ -11,6 +11,7 @@ function AdminDashboard({ payload, csrfToken }) {
     selected_content_type = 'movie',
     selected_genre_id = null,
     growth_data = [],
+    user_retention = 100,
     parent_candidates = []
   } = payload;
 
@@ -396,20 +397,20 @@ function AdminDashboard({ payload, csrfToken }) {
               <div className="relative w-40 h-40 mb-6">
                 <svg className="w-full h-full transform -rotate-90">
                   <circle cx="80" cy="80" fill="transparent" r="70" stroke="rgba(255,255,255,0.05)" strokeWidth="12"></circle>
-                  <circle cx="80" cy="80" fill="transparent" r="70" stroke="#E50914" strokeDasharray="440" stroke-dashoffset="88" strokeLinecap="round" strokeWidth="12"></circle>
+                  <circle cx="80" cy="80" fill="transparent" r="70" stroke="#E50914" strokeDasharray="440" strokeDashoffset={440 - (440 * user_retention / 100)} strokeLinecap="round" strokeWidth="12"></circle>
                 </svg>
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-2xl font-bold text-white">82%</span>
+                  <span className="text-2xl font-bold text-white">{user_retention}%</span>
                 </div>
               </div>
               <div className="space-y-3 w-full">
                 <div className="flex justify-between items-center text-sm">
                   <span className="flex items-center gap-2 text-white"><span className="w-2 h-2 rounded-full bg-primary-container"></span> Returning</span>
-                  <span className="font-bold text-white">82%</span>
+                  <span className="font-bold text-white">{user_retention}%</span>
                 </div>
                 <div className="flex justify-between items-center text-sm">
                   <span className="flex items-center gap-2 text-white"><span className="w-2 h-2 rounded-full bg-white/20"></span> New</span>
-                  <span className="font-bold text-white">18%</span>
+                  <span className="font-bold text-white">{100 - user_retention}%</span>
                 </div>
               </div>
             </div>
