@@ -566,14 +566,13 @@ def admin_dashboard(request):
     import datetime
     from django.utils import timezone
     growth_data = []
-    base_values = [100, 130, 150, 180, 210, 240, 260]
     now = timezone.now()
-    for idx, i in enumerate(range(6, -1, -1)):
+    for i in range(6, -1, -1):
         d = now - datetime.timedelta(days=30*i)
         count = User.objects.filter(date_joined__lte=d).count()
         growth_data.append({
             'month': d.strftime('%b').upper(),
-            'count': base_values[idx] + count * 20
+            'count': count
         })
 
     # Fetch parent candidates (movies/series without parents)
