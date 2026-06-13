@@ -1,5 +1,13 @@
 import { useState } from 'react'
 
+// Helper to extract YouTube Video ID
+const getYouTubeId = (url) => {
+  if (!url) return null;
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+  const match = url.match(regExp);
+  return (match && match[2].length === 11) ? match[2] : null;
+};
+
 function MovieDetail({ payload, user, csrfToken }) {
   const {
     movie,
@@ -7,11 +15,18 @@ function MovieDetail({ payload, user, csrfToken }) {
     in_watchlist: initialInWatchlist,
     in_favorites: initialInFavorites,
     cast_list = [],
-    crew_list = []
+    crew_list = [],
+    parts = [],
+    parent_movie = null
   } = payload;
 
   const [inWatchlist, setInWatchlist] = useState(initialInWatchlist);
   const [inFavorites, setInFavorites] = useState(initialInFavorites);
+  const [isTrailerOpen, setIsTrailerOpen] = useState(false);
+
+  const ytId = getYouTubeId(movie.video_url);
+
+  const playableMovieId = (parts.length > 0 && (movie.content_type === 'series' ? !movie.parent_id : parts.some(p => p.id === movie.id) && movie.id === parent_movie?.id)) ? parts[0].id : movie.id;
 
   const toggleWatchlist = () => {
     if (!user) {
@@ -100,12 +115,22 @@ function MovieDetail({ payload, user, csrfToken }) {
             {/* Quick Action buttons */}
             <div className="flex flex-wrap gap-4 mb-8">
               <a 
-                href={`/movies/${movie.id}/watch/`} 
+                href={`/movies/${playableMovieId}/watch/`} 
                 className="px-8 py-3.5 bg-primary-container text-on-primary-container font-bold rounded-xl hover:brightness-110 transition-all flex items-center gap-2 shadow-lg shadow-primary-container/20"
               >
                 <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>play_arrow</span>
                 <span>Play Now</span>
               </a>
+
+              {ytId && (
+                <button 
+                  onClick={() => setIsTrailerOpen(true)}
+                  className="px-6 py-3.5 bg-white/10 hover:bg-white/15 text-white font-bold rounded-xl transition-all flex items-center gap-2 border border-white/10 cursor-pointer"
+                >
+                  <span className="material-symbols-outlined">smart_display</span>
+                  <span>Watch Trailer</span>
+                </button>
+              )}
               
               <button 
                 onClick={toggleWatchlist}
@@ -162,6 +187,60 @@ function MovieDetail({ payload, user, csrfToken }) {
                         {member}
                       </span>
                     ))}
+                  </div>
+                </div>
+              )}
+
+              {/* TV Seasons or Movie Collection Section */}
+              {parts.length > 0 && (
+                <div className="border-t border-white/5 pt-6 mt-6">
+                  <h3 className="text-xs font-bold tracking-widest text-white/40 uppercase mb-4">
+                    {movie.content_type === 'series' ? 'Seasons' : 'Movies in this Collection'}
+                  </h3>
+                  <div className="space-y-4">
+                    {parts.map(part => {
+                      const isActive = part.id === movie.id;
+                      return (
+                        <div 
+                          key={part.id}
+                          onClick={() => window.location.href = `/movies/${part.id}/`}
+                          className={`flex flex-col sm:flex-row gap-4 p-4 rounded-2xl border transition-all duration-300 cursor-pointer group ${
+                            isActive 
+                              ? 'bg-primary-container/10 border-primary-container shadow-lg shadow-primary-container/5' 
+                              : 'bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20'
+                          }`}
+                        >
+                          <div className="relative w-full sm:w-56 md:w-64 aspect-video rounded-xl overflow-hidden flex-shrink-0 bg-black/40">
+                            <img 
+                              src={part.banner_url || part.poster_url} 
+                              alt={part.title}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            />
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                              <span className="material-symbols-outlined text-4xl text-white">play_circle</span>
+                            </div>
+                            <div className="absolute top-2 left-2 bg-black/60 px-2 py-0.5 rounded text-[10px] font-bold text-white tracking-wide uppercase">
+                              {part.part_name || (movie.content_type === 'series' ? `Season ${part.part_number}` : `Part ${part.part_number}`)}
+                            </div>
+                          </div>
+                          <div className="flex flex-col justify-center text-left min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h4 className={`font-bold text-base md:text-lg truncate ${isActive ? 'text-primary-container' : 'text-white group-hover:text-primary-container transition-colors'}`}>
+                                {part.title}
+                              </h4>
+                              {part.rating > 0 && (
+                                <span className="text-[10px] bg-white/5 border border-white/10 px-1.5 py-0.5 rounded text-amber-400 flex items-center font-bold">
+                                  <span className="material-symbols-outlined text-[10px] mr-0.5" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                                  {part.rating}
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-xs text-white/50 mb-2 font-medium">{part.release_year} • {part.duration}</p>
+                            <p className="text-xs text-white/70 line-clamp-2 leading-relaxed">{part.description}</p>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               )}
@@ -223,6 +302,29 @@ function MovieDetail({ payload, user, csrfToken }) {
           </section>
         )}
       </div>
+
+      {/* Trailer Modal Lightbox */}
+      {isTrailerOpen && ytId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/95 backdrop-blur-md animate-fade-in">
+          <div className="relative w-full max-w-4xl aspect-video bg-black rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
+            <button 
+              onClick={() => setIsTrailerOpen(false)}
+              className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80 border border-white/10 transition-all cursor-pointer"
+            >
+              <span className="material-symbols-outlined">close</span>
+            </button>
+            <iframe 
+              className="w-full h-full"
+              src={`https://www.youtube-nocookie.com/embed/${ytId}?autoplay=1&controls=1&rel=0`}
+              title={`${movie.title} Trailer`}
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              referrerPolicy="strict-origin-when-cross-origin"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

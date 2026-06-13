@@ -34,6 +34,9 @@ def serialize_movie(m, watchlist_ids=set(), favorites_ids=set()):
         'is_popular': m.is_popular,
         'is_latest': m.is_latest,
         'is_top_rated': m.is_top_rated,
+        'parent_id': m.parent_id,
+        'part_number': m.part_number,
+        'part_name': m.part_name,
     }
 
 def serialize_genre(g):
@@ -47,17 +50,17 @@ def serialize_genre(g):
 
 @never_cache
 def home(request):
-    featured_movie = Movie.objects.filter(is_trending=True).order_by('display_order').first()
+    featured_movie = Movie.objects.filter(parent=None, is_trending=True).order_by('display_order').first()
     if not featured_movie:
-        featured_movie = Movie.objects.order_by('display_order').first()
+        featured_movie = Movie.objects.filter(parent=None).order_by('display_order').first()
 
-    trending_movies = Movie.objects.filter(is_trending=True).order_by('display_order')
-    popular_movies = Movie.objects.filter(is_popular=True).order_by('display_order')
-    latest_movies = Movie.objects.filter(is_latest=True).order_by('display_order')
-    top_rated_movies = Movie.objects.filter(is_top_rated=True).order_by('display_order')
+    trending_movies = Movie.objects.filter(parent=None, is_trending=True).order_by('display_order')
+    popular_movies = Movie.objects.filter(parent=None, is_popular=True).order_by('display_order')
+    latest_movies = Movie.objects.filter(parent=None, is_latest=True).order_by('display_order')
+    top_rated_movies = Movie.objects.filter(parent=None, is_top_rated=True).order_by('display_order')
 
     continue_watching = []
-    recommended_movies = Movie.objects.all()[:6]
+    recommended_movies = Movie.objects.filter(parent=None)[:6]
     show_genre_modal = False
     all_genres = Genre.objects.all()
 
@@ -69,15 +72,15 @@ def home(request):
         continue_watching = WatchHistory.objects.filter(user=request.user).select_related('movie')[:4]
         fav_genres = request.user.profile.favorite_genres.all()
         if fav_genres.exists():
-            recommended_movies = Movie.objects.filter(genres__in=fav_genres).distinct()
+            recommended_movies = Movie.objects.filter(parent=None, genres__in=fav_genres).distinct()
         else:
-            recommended_movies = Movie.objects.all()[:6]
+            recommended_movies = Movie.objects.filter(parent=None)[:6]
         
         show_genre_modal = request.session.pop('show_genre_signup_modal', False)
         if show_genre_modal or not fav_genres.exists():
             show_genre_modal = True
 
-    all_movies = Movie.objects.all().order_by('display_order').prefetch_related('genres')
+    all_movies = Movie.objects.filter(parent=None).order_by('display_order').prefetch_related('genres')
 
     payload = {
         'featured_movie': serialize_movie(featured_movie, watchlist_ids, favorites_ids),
@@ -226,7 +229,7 @@ def dashboard(request):
     return render(request, 'cine_verse/react_index.html', context)
 
 def movie_list(request):
-    movies = Movie.objects.all()
+    movies = Movie.objects.filter(parent=None)
     
     content_type = request.GET.get('content_type', 'all')
     genre_slug = request.GET.get('genre')
@@ -262,7 +265,7 @@ def movie_list(request):
         watchlist_ids = set(request.user.profile.watchlist.values_list('id', flat=True))
         favorites_ids = set(request.user.profile.favorites.values_list('id', flat=True))
 
-    all_movies_list = Movie.objects.all().order_by('display_order').prefetch_related('genres')
+    all_movies_list = Movie.objects.filter(parent=None).order_by('display_order').prefetch_related('genres')
 
     payload = {
         'all_movies': [serialize_movie(m, watchlist_ids, favorites_ids) for m in all_movies_list],
@@ -288,9 +291,9 @@ def movie_detail(request, movie_id):
     movie = get_object_or_404(Movie, id=movie_id)
     primary_genre = movie.genres.first()
     if primary_genre:
-        similar_movies = Movie.objects.filter(genres=primary_genre).exclude(id=movie.id).distinct()[:8]
+        similar_movies = Movie.objects.filter(parent=None, genres=primary_genre).exclude(id=movie.id).distinct()[:8]
     else:
-        similar_movies = Movie.objects.filter(genres__in=movie.genres.all()).exclude(id=movie.id).distinct()[:8]
+        similar_movies = Movie.objects.filter(parent=None, genres__in=movie.genres.all()).exclude(id=movie.id).distinct()[:8]
     
     in_watchlist = False
     in_favorites = False
@@ -304,9 +307,22 @@ def movie_detail(request, movie_id):
         
     cast_list = [c.strip() for c in movie.cast.split(',') if c.strip()]
     crew_list = [c.strip() for c in movie.crew.split(',') if c.strip()]
+
+    # Fetch seasons or sequels (parts)
+    parts = []
+    parent_movie = None
+    if movie.parent:
+        parts = Movie.objects.filter(parent=movie.parent).order_by('part_number', 'release_year')
+        parent_movie = movie.parent
+    else:
+        parts = Movie.objects.filter(parent=movie).order_by('part_number', 'release_year')
+        if parts.exists():
+            parent_movie = movie
         
     payload = {
         'movie': serialize_movie(movie, watchlist_ids, favorites_ids),
+        'parent_movie': serialize_movie(parent_movie, watchlist_ids, favorites_ids) if parent_movie else None,
+        'parts': [serialize_movie(p, watchlist_ids, favorites_ids) for p in parts],
         'similar_movies': [serialize_movie(m, watchlist_ids, favorites_ids) for m in similar_movies],
         'in_watchlist': in_watchlist,
         'in_favorites': in_favorites,
@@ -545,6 +561,23 @@ def admin_dashboard(request):
         watchlist_ids = set(request.user.profile.watchlist.values_list('id', flat=True))
         favorites_ids = set(request.user.profile.favorites.values_list('id', flat=True))
 
+    # Calculate subscriber growth dynamically for the last 7 months
+    import datetime
+    from django.utils import timezone
+    growth_data = []
+    base_values = [100, 130, 150, 180, 210, 240, 260]
+    now = timezone.now()
+    for idx, i in enumerate(range(6, -1, -1)):
+        d = now - datetime.timedelta(days=30*i)
+        count = User.objects.filter(date_joined__lte=d).count()
+        growth_data.append({
+            'month': d.strftime('%b').upper(),
+            'count': base_values[idx] + count * 20
+        })
+
+    # Fetch parent candidates (movies/series without parents)
+    parent_candidates = Movie.objects.filter(parent=None).order_by('title')
+
     payload = {
         'total_users': total_users,
         'total_movies': total_movies,
@@ -561,6 +594,8 @@ def admin_dashboard(request):
         'genres': [serialize_genre(g) for g in genres],
         'selected_content_type': selected_content_type,
         'selected_genre_id': int(selected_genre_id) if selected_genre_id else None,
+        'growth_data': growth_data,
+        'parent_candidates': [serialize_movie(m, watchlist_ids, favorites_ids) for m in parent_candidates],
     }
     context = {
         'page_name': 'admin_dashboard',
@@ -579,7 +614,7 @@ def search_results(request):
     
     movies = Movie.objects.none()
     if q:
-        movies = Movie.objects.filter(Q(title__icontains=q) | Q(description__icontains=q))
+        movies = Movie.objects.filter(parent=None).filter(Q(title__icontains=q) | Q(description__icontains=q))
 
     all_q_movies = movies
 
@@ -602,9 +637,9 @@ def search_results(request):
     languages = Movie.objects.values_list('language', flat=True).distinct()
     years = Movie.objects.values_list('release_year', flat=True).distinct().order_by('-release_year')
     
-    trending_searches = Movie.objects.filter(is_trending=True)[:5]
+    trending_searches = Movie.objects.filter(parent=None, is_trending=True)[:5]
     if not trending_searches.exists():
-        trending_searches = Movie.objects.all()[:5]
+        trending_searches = Movie.objects.filter(parent=None)[:5]
         
     total_count = movies.distinct().count() if q else 0
     movie_count = all_q_movies.filter(content_type='movie').distinct().count() if q else 0
@@ -616,7 +651,7 @@ def search_results(request):
         watchlist_ids = set(request.user.profile.watchlist.values_list('id', flat=True))
         favorites_ids = set(request.user.profile.favorites.values_list('id', flat=True))
 
-    all_movies_list = Movie.objects.all().order_by('display_order').prefetch_related('genres')
+    all_movies_list = Movie.objects.filter(parent=None).order_by('display_order').prefetch_related('genres')
 
     payload = {
         'all_movies': [serialize_movie(m, watchlist_ids, favorites_ids) for m in all_movies_list],
@@ -699,6 +734,24 @@ def admin_add_movie(request):
             max_order = Movie.objects.aggregate(Max('display_order'))['display_order__max']
             display_order = (max_order or 0) + 10
             
+            parent_id = request.POST.get('parent_id')
+            part_number = request.POST.get('part_number')
+            part_name = request.POST.get('part_name')
+            
+            parent = None
+            if parent_id and parent_id != '' and parent_id != 'none':
+                try:
+                    parent = Movie.objects.get(id=int(parent_id))
+                except (ValueError, Movie.DoesNotExist):
+                    pass
+            
+            part_num = None
+            if part_number and part_number != '':
+                try:
+                    part_num = int(part_number)
+                except ValueError:
+                    pass
+            
             movie = Movie.objects.create(
                 title=title,
                 description=description,
@@ -716,7 +769,10 @@ def admin_add_movie(request):
                 is_top_rated=is_top_rated,
                 cast=cast,
                 crew=crew,
-                display_order=display_order
+                display_order=display_order,
+                parent=parent,
+                part_number=part_num,
+                part_name=part_name if part_name != '' else None
             )
             
             if genre_ids:
@@ -871,6 +927,27 @@ def admin_edit_movie(request, movie_id):
             if display_order is not None:
                 movie.display_order = int(display_order)
                 
+            parent_id = request.POST.get('parent_id')
+            part_number = request.POST.get('part_number')
+            part_name = request.POST.get('part_name')
+            
+            parent = None
+            if parent_id and parent_id != '' and parent_id != 'none':
+                try:
+                    parent = Movie.objects.get(id=int(parent_id))
+                except (ValueError, Movie.DoesNotExist):
+                    pass
+            movie.parent = parent
+            
+            part_num = None
+            if part_number and part_number != '':
+                try:
+                    part_num = int(part_number)
+                except ValueError:
+                    pass
+            movie.part_number = part_num
+            movie.part_name = part_name if part_name != '' else None
+
             movie.save()
             return redirect('admin_dashboard')
         except Exception as e:

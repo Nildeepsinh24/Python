@@ -9,7 +9,9 @@ function AdminDashboard({ payload, csrfToken }) {
     movies = [],
     genres = [],
     selected_content_type = 'movie',
-    selected_genre_id = null
+    selected_genre_id = null,
+    growth_data = [],
+    parent_candidates = []
   } = payload;
 
   const [activeTab, setActiveTab] = useState(() => {
@@ -322,30 +324,26 @@ function AdminDashboard({ payload, csrfToken }) {
                 </div>
               </div>
               <div className="h-64 relative flex items-end gap-2 overflow-hidden">
-                <div className="flex-1 bg-primary-container/20 rounded-t-lg h-[40%] hover:bg-primary-container/40 transition-all duration-300 relative group cursor-pointer">
-                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-[#1E2020] p-2 rounded text-[10px] opacity-0 group-hover:opacity-100 transition-opacity text-white">120</div>
-                </div>
-                <div className="flex-1 bg-primary-container/30 rounded-t-lg h-[60%] hover:bg-primary-container/50 transition-all duration-300 relative group cursor-pointer">
-                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-[#1E2020] p-2 rounded text-[10px] opacity-0 group-hover:opacity-100 transition-opacity text-white">180</div>
-                </div>
-                <div className="flex-1 bg-primary-container/25 rounded-t-lg h-[55%] hover:bg-primary-container/45 transition-all duration-300 relative group cursor-pointer">
-                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-[#1E2020] p-2 rounded text-[10px] opacity-0 group-hover:opacity-100 transition-opacity text-white">165</div>
-                </div>
-                <div className="flex-1 bg-primary-container/40 rounded-t-lg h-[80%] hover:bg-primary-container/60 transition-all duration-300 relative group cursor-pointer">
-                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-[#1E2020] p-2 rounded text-[10px] opacity-0 group-hover:opacity-100 transition-opacity text-white">240</div>
-                </div>
-                <div className="flex-1 bg-primary-container/50 rounded-t-lg h-[90%] hover:bg-primary-container/70 transition-all duration-300 relative group cursor-pointer">
-                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-[#1E2020] p-2 rounded text-[10px] opacity-0 group-hover:opacity-100 transition-opacity text-white">270</div>
-                </div>
-                <div className="flex-1 bg-primary-container/45 rounded-t-lg h-[85%] hover:bg-primary-container/65 transition-all duration-300 relative group cursor-pointer">
-                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-[#1E2020] p-2 rounded text-[10px] opacity-0 group-hover:opacity-100 transition-opacity text-white">255</div>
-                </div>
-                <div className="flex-1 bg-primary-container rounded-t-lg h-[100%] hover:brightness-125 transition-all duration-300 relative group cursor-pointer">
-                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-[#1E2020] p-2 rounded text-[10px] opacity-0 group-hover:opacity-100 transition-opacity text-white">300</div>
-                </div>
+                {growth_data.map((d, index) => {
+                  const maxVal = Math.max(...growth_data.map(item => item.count), 1);
+                  const pct = (d.count / maxVal) * 100;
+                  return (
+                    <div 
+                      key={index} 
+                      style={{ height: `${pct}%` }} 
+                      className="flex-1 bg-primary-container/30 rounded-t-lg hover:bg-primary-container/50 transition-all duration-300 relative group cursor-pointer"
+                    >
+                      <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-[#1E2020] p-2 rounded text-[10px] opacity-0 group-hover:opacity-100 transition-opacity text-white z-20 whitespace-nowrap">
+                        {d.count}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
               <div className="flex justify-between mt-4 text-on-surface-variant font-label-caps opacity-50 text-xs text-white">
-                <span>JAN</span><span>FEB</span><span>MAR</span><span>APR</span><span>MAY</span><span>JUN</span><span>JUL</span>
+                {growth_data.map((d, index) => (
+                  <span key={index} className="flex-1 text-center">{d.month}</span>
+                ))}
               </div>
             </div>
 
@@ -711,6 +709,26 @@ function AdminDashboard({ payload, csrfToken }) {
                 </div>
               </div>
 
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-white/5 p-4 rounded-xl border border-white/5">
+                <div>
+                  <label className="block text-xs font-bold text-on-surface-variant mb-1 uppercase text-white/70">Parent Franchise / Series</label>
+                  <select name="parent_id" className="w-full bg-[#1A1C1E] border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-container transition-colors">
+                    <option value="none">None (Is a Parent / Standalone)</option>
+                    {parent_candidates.map(p => (
+                      <option key={p.id} value={p.id}>{p.title}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-on-surface-variant mb-1 uppercase text-white/70">Part / Season Number</label>
+                  <input type="number" name="part_number" className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-container transition-colors" placeholder="e.g. 1 or 2" />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-on-surface-variant mb-1 uppercase text-white/70">Part / Season Name</label>
+                  <input type="text" name="part_name" className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-container transition-colors" placeholder="e.g. Season 1 or Homecoming" />
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-on-surface-variant mb-1 uppercase text-white/70">Cast (Comma separated)</label>
@@ -910,6 +928,42 @@ function AdminDashboard({ payload, csrfToken }) {
                     defaultValue={editingMovie.duration}
                     required
                     className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-container transition-colors"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-white/5 p-4 rounded-xl border border-white/5">
+                <div>
+                  <label className="block text-xs font-bold text-on-surface-variant mb-1 uppercase text-white/70">Parent Franchise / Series</label>
+                  <select 
+                    name="parent_id" 
+                    defaultValue={editingMovie.parent_id || 'none'}
+                    className="w-full bg-[#1A1C1E] border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-container transition-colors"
+                  >
+                    <option value="none">None (Is a Parent / Standalone)</option>
+                    {parent_candidates.filter(p => p.id !== editingMovie.id).map(p => (
+                      <option key={p.id} value={p.id}>{p.title}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-on-surface-variant mb-1 uppercase text-white/70">Part / Season Number</label>
+                  <input 
+                    type="number" 
+                    name="part_number" 
+                    defaultValue={editingMovie.part_number || ''}
+                    className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-container transition-colors" 
+                    placeholder="e.g. 1 or 2" 
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-on-surface-variant mb-1 uppercase text-white/70">Part / Season Name</label>
+                  <input 
+                    type="text" 
+                    name="part_name" 
+                    defaultValue={editingMovie.part_name || ''}
+                    className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-container transition-colors" 
+                    placeholder="e.g. Season 1 or Homecoming" 
                   />
                 </div>
               </div>

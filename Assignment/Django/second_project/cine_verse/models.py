@@ -34,6 +34,9 @@ class Movie(models.Model):
 	crew = models.TextField(default='Director: John Doe', help_text='Comma-separated crew list')
 	display_order = models.IntegerField(default=0, help_text="Order of displaying in lists")
 	genres = models.ManyToManyField(Genre, related_name='movies')
+	parent = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='parts')
+	part_number = models.IntegerField(null=True, blank=True, help_text="Season number for TV shows, or chronological part number for movie sequels.")
+	part_name = models.CharField(max_length=100, null=True, blank=True, help_text="e.g. 'Season 1', 'Season 2', or sequel subtitle like 'Across the Spider-Verse'")
 
 	def __str__(self):
 		return self.title

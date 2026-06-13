@@ -158,9 +158,9 @@ function Dashboard({ payload, user, csrfToken }) {
                 <span className="material-symbols-outlined text-secondary" style={{ fontVariationSettings: "'FILL' 1" }}>favorite</span>
               </div>
               <div>
-                <p className="text-on-surface-variant text-label-caps font-label-caps">FAVORITE GENRE</p>
-                <p className="text-on-surface font-bold text-white">
-                  {profile.favorite_genres?.length > 0 ? profile.favorite_genres[0] : 'Not Set'}
+                <p className="text-on-surface-variant text-label-caps font-label-caps">FAVORITE GENRES</p>
+                <p className="text-on-surface font-bold text-white truncate max-w-[180px]" title={profile.favorite_genres?.join(', ')}>
+                  {profile.favorite_genres?.length > 0 ? profile.favorite_genres.join(', ') : 'Not Set'}
                 </p>
               </div>
             </div>
@@ -225,9 +225,6 @@ function Dashboard({ payload, user, csrfToken }) {
               <div className="absolute inset-0 bg-gradient-to-t from-[#0F1117] via-transparent to-transparent opacity-60"></div>
               <div className="absolute bottom-0 left-0 w-full px-4 pb-4">
                 <p className="font-bold truncate text-white">{item.movie.title}</p>
-                <div className="mt-2 w-full bg-white/20 h-1 rounded-full overflow-hidden">
-                  <div className="bg-primary-container h-full" style={{ width: `${item.progress}%` }}></div>
-                </div>
               </div>
               <div className="overlay absolute inset-0 bg-black/40 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                 <button className="w-12 h-12 rounded-full bg-primary-container flex items-center justify-center text-white scale-90 hover:scale-110 transition-transform shadow-lg cursor-pointer">

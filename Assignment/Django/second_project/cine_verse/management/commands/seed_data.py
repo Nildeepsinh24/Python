@@ -10,6 +10,62 @@ class Command(BaseCommand):
     help = 'Seeds database with high-quality CineVerse OTT real movie and series data'
 
     def handle(self, *args, **kwargs):
+        youtube_trailers = {
+            'Interstellar': 'https://www.youtube.com/watch?v=zSWdZAIB5nY',
+            'Dune: Part Two': 'https://www.youtube.com/watch?v=Way9Dexny3w',
+            'The Dark Knight': 'https://www.youtube.com/watch?v=EXeTwQWrcwY',
+            'Inception': 'https://www.youtube.com/watch?v=YoHD9XEInc0',
+            'Oppenheimer': 'https://www.youtube.com/watch?v=uYPbbEsJkQ0',
+            'Gladiator': 'https://www.youtube.com/watch?v=P5ieIbInFpg',
+            'Mad Max: Fury Road': 'https://www.youtube.com/watch?v=hEJnMQG9ev8',
+            'John Wick: Chapter 4': 'https://www.youtube.com/watch?v=qEVUqWsJtJA',
+            'The Godfather': 'https://www.youtube.com/watch?v=UaVTIH8mujA',
+            'The Shawshank Redemption': 'https://www.youtube.com/watch?v=PLl99DlL6b4',
+            'Parasite': 'https://www.youtube.com/watch?v=5xH0HfJHsaY',
+            'Get Out': 'https://www.youtube.com/watch?v=sRfnevzM9J8',
+            'The Conjuring': 'https://www.youtube.com/watch?v=k10ETZ42q5o',
+            'Hereditary': 'https://www.youtube.com/watch?v=V6wWKNij_1M',
+            'A Quiet Place': 'https://www.youtube.com/watch?v=WR7cc5t7tv8',
+            'Avatar: The Way of Water': 'https://www.youtube.com/watch?v=d9MyW72ELq0',
+            'Blade Runner 2049': 'https://www.youtube.com/watch?v=gCcx85zbxz4',
+            'Spider-Man: No Way Home': 'https://www.youtube.com/watch?v=JfVOs4VSpmA',
+            'Shutter Island': 'https://www.youtube.com/watch?v=5iaYLCip5Qk',
+            'The Hangover': 'https://www.youtube.com/watch?v=tcdUhdOlz9M',
+            'Superbad': 'https://www.youtube.com/watch?v=N_ASi32tue8',
+            'It': 'https://www.youtube.com/watch?v=FnCdOQs95i8',
+            'The Matrix': 'https://www.youtube.com/watch?v=vKQi3bBA1y8',
+            'Spirited Away': 'https://www.youtube.com/watch?v=ByXuk9QqQkk',
+            'Spider-Man: Across the Spider-Verse': 'https://www.youtube.com/watch?v=cqGjhVJWtEg',
+            'Avengers: Endgame': 'https://www.youtube.com/watch?v=TcMBFSGVi1c',
+            'The Lord of the Rings: The Fellowship of the Ring': 'https://www.youtube.com/watch?v=V75dMMIW2B4',
+            'The Shining': 'https://www.youtube.com/watch?v=KI19-sS57LI',
+            'A Nightmare on Elm Street': 'https://www.youtube.com/watch?v=dCVh4lBfW-c',
+            'Talk to Me': 'https://www.youtube.com/watch?v=aLAKJu9aUXo',
+            'M3GAN': 'https://www.youtube.com/watch?v=WrR7cc5t7tv8',
+            'Project Hail Mary': 'https://www.youtube.com/watch?v=zSWdZAIB5nY',
+            'Stranger Things': 'https://www.youtube.com/watch?v=yQEondeGvKo',
+            'The Boys': 'https://www.youtube.com/watch?v=M1BHuPScwbg',
+            'Shōgun': 'https://www.youtube.com/watch?v=yQEondeGvKo',
+            'Breaking Bad': 'https://www.youtube.com/watch?v=HhesaQXLuRY',
+            'Succession': 'https://www.youtube.com/watch?v=OzY2qqZpe2A',
+            'The Office': 'https://www.youtube.com/watch?v=LHOtME2DLyI',
+            'Friends': 'https://www.youtube.com/watch?v=hDNNmeeJs1Q',
+            'Ted Lasso': 'https://www.youtube.com/watch?v=3m_R-1t-hEE',
+            'The Legend of Vox Machina': 'https://www.youtube.com/watch?v=JvxBy_3PsnU',
+            'Wednesday': 'https://www.youtube.com/watch?v=Di310WS8zLk',
+            'The Night Manager': 'https://www.youtube.com/watch?v=yQEondeGvKo',
+            'From': 'https://www.youtube.com/watch?v=yQEondeGvKo',
+            'Alice in the Borderland': 'https://www.youtube.com/watch?v=yQEondeGvKo',
+            'Moon Knight': 'https://www.youtube.com/watch?v=x7Krla_UxHg',
+            'Dark': 'https://www.youtube.com/watch?v=rrwyCJ08qFM',
+            'Chernobyl': 'https://www.youtube.com/watch?v=s9APLXM9Ei8',
+            'The Boroughs': 'https://www.youtube.com/watch?v=yQEondeGvKo',
+            'Spider-Noir': 'https://www.youtube.com/watch?v=yQEondeGvKo',
+            'Scam 1992: The Harshad Mehta Story': 'https://www.youtube.com/watch?v=XXsnsk6S6Qk',
+            'Farzi': 'https://www.youtube.com/watch?v=33-J_V_t56A',
+            'The Family Man': 'https://www.youtube.com/watch?v=bv9xrcqcMys',
+            'Asur: Welcome to Your Dark Side': 'https://www.youtube.com/watch?v=9AZnfGUnPZB',
+        }
         self.stdout.write("Deleting existing data...")
         WatchHistory.objects.all().delete()
         Movie.objects.all().delete()
@@ -958,7 +1014,7 @@ class Command(BaseCommand):
                 content_type=item.get('content_type', 'series' if item['duration'] == 'TV Series' else 'movie'),
                 poster_url=item['poster_url'],
                 banner_url=item['banner_url'],
-                video_url="https://www.w3schools.com/html/mov_bbb.mp4",
+                video_url=youtube_trailers.get(item['title'], 'https://www.youtube.com/watch?v=zSWdZAIB5nY'),
                 rating=item['rating'],
                 release_year=item['release_year'],
                 language=item['language'],
@@ -1004,6 +1060,460 @@ class Command(BaseCommand):
             
         self.stdout.write(f"Successfully created {len(created_movies)} real movies/series.")
         
+        # Create Parent/Child relationships for demonstration
+        self.stdout.write("Linking sequels and seasons...")
+        
+        # 1. Spider-Man Collection
+        spiderman_parent = Movie.objects.create(
+            title="Spider-Man (MCU) Trilogy",
+            description="The complete high-stakes journey of Peter Parker in the Marvel Cinematic Universe, balancing high school life with protecting New York.",
+            content_type="movie",
+            poster_url="https://static.wikia.nocookie.net/marvelcinematicuniverse/images/1/1d/Spider-Man_No_Way_Home_JP_Poster.jpg/revision/latest/thumbnail/width/360/height/360?cb=20211125071618",
+            banner_url="https://image.tmdb.org/t/p/original/tyQo080tijexyUHBvWPwQt26bZa.jpg",
+            video_url="https://www.youtube.com/watch?v=JfVOs4VSpmA",
+            rating=9.2,
+            release_year=2021,
+            language="English",
+            duration="3 Movies",
+            is_trending=True,
+            is_popular=True,
+            cast="Tom Holland, Zendaya, Jacob Batalon",
+            crew="Director: Jon Watts",
+            display_order=180
+        )
+        spiderman_parent.genres.add(genres_map['action'], genres_map['adventure'], genres_map['sci-fi'])
+        created_movies.append(spiderman_parent)
+        
+        sm1 = Movie.objects.create(
+            title="Spider-Man: Homecoming",
+            description="Peter Parker balances his life as an ordinary high school student in Queens with his superhero alter-ego Spider-Man, and finds himself on the trail of a new menace prowling the skies of New York City.",
+            content_type="movie",
+            poster_url="https://image.tmdb.org/t/p/original/45Y6crcltT124S-5Z88gJm3e9a.jpg",
+            banner_url="https://image.tmdb.org/t/p/original/fn4n6metrTfXtD9u5cu7oU7Ifw8.jpg",
+            video_url="https://www.youtube.com/watch?v=39udgGPyYHI",
+            rating=8.5,
+            release_year=2017,
+            language="English",
+            duration="2h 13m",
+            cast="Tom Holland, Michael Keaton, Robert Downey Jr., Zendaya",
+            crew="Director: Jon Watts",
+            parent=spiderman_parent,
+            part_number=1,
+            part_name="Homecoming"
+        )
+        sm1.genres.add(genres_map['action'], genres_map['adventure'], genres_map['sci-fi'])
+        created_movies.append(sm1)
+
+        sm2 = Movie.objects.create(
+            title="Spider-Man: Far From Home",
+            description="Following the events of Avengers: Endgame, Spider-Man must step up to take on new threats in a world that has changed forever.",
+            content_type="movie",
+            poster_url="https://image.tmdb.org/t/p/original/4q235wzywOU2M4hwvtuiTB0vU7N.jpg",
+            banner_url="https://image.tmdb.org/t/p/original/1Ruzn4VnEw0qYJux4T9Y52TjS0s.jpg",
+            video_url="https://www.youtube.com/watch?v=Nt9L1jyeSdg",
+            rating=8.7,
+            release_year=2019,
+            language="English",
+            duration="2h 9m",
+            cast="Tom Holland, Samuel L. Jackson, Jake Gyllenhaal, Zendaya",
+            crew="Director: Jon Watts",
+            parent=spiderman_parent,
+            part_number=2,
+            part_name="Far From Home"
+        )
+        sm2.genres.add(genres_map['action'], genres_map['adventure'], genres_map['sci-fi'])
+        created_movies.append(sm2)
+
+        # Find existing No Way Home movie and update it
+        try:
+            nwh = Movie.objects.get(title="Spider-Man: No Way Home")
+            nwh.parent = spiderman_parent
+            nwh.part_number = 3
+            nwh.part_name = "No Way Home"
+            nwh.video_url = "https://www.youtube.com/watch?v=JfVOs4VSpmA"
+            nwh.save()
+        except Movie.DoesNotExist:
+            pass
+
+        # 2. Dune Collection
+        dune_parent = Movie.objects.create(
+            title="Dune Collection",
+            description="The epic saga of Paul Atreides as he navigates the dangerous desert planet of Arrakis and leads the Fremen in a war for the universe.",
+            content_type="movie",
+            poster_url="https://m.media-amazon.com/images/M/MV5BNTc0YmQxMjEtODI5MC00NjFiLTlkMWUtOGQ5NjFmYWUyZGJhXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg",
+            banner_url="https://image.tmdb.org/t/p/original/xOMo8BRK7PfcJv9JCnx7s5hj0PX.jpg",
+            video_url="https://www.youtube.com/watch?v=Way9Dexny3w",
+            rating=9.5,
+            release_year=2024,
+            language="English",
+            duration="2 Movies",
+            is_trending=True,
+            is_popular=True,
+            cast="Timothée Chalamet, Zendaya, Rebecca Ferguson, Oscar Isaac, Josh Brolin",
+            crew="Director: Denis Villeneuve",
+            display_order=20
+        )
+        dune_parent.genres.add(genres_map['sci-fi'], genres_map['adventure'], genres_map['action'])
+        created_movies.append(dune_parent)
+
+        dune1 = Movie.objects.create(
+            title="Dune: Part One",
+            description="Paul Atreides, a brilliant and gifted young man born into a great destiny beyond his understanding, must travel to the most dangerous planet in the universe to ensure the future of his family and his people.",
+            content_type="movie",
+            poster_url="https://image.tmdb.org/t/p/original/d5NXSklXkiZt14AL49L4BtZAVXc.jpg",
+            banner_url="https://image.tmdb.org/t/p/original/lz7617S53MIZ9O5qGg7G5617oAb.jpg",
+            video_url="https://www.youtube.com/watch?v=8g18jFHCLzs",
+            rating=9.0,
+            release_year=2021,
+            language="English",
+            duration="2h 35m",
+            cast="Timothée Chalamet, Rebecca Ferguson, Oscar Isaac, Josh Brolin",
+            crew="Director: Denis Villeneuve",
+            parent=dune_parent,
+            part_number=1,
+            part_name="Part One"
+        )
+        dune1.genres.add(genres_map['sci-fi'], genres_map['adventure'], genres_map['action'])
+        created_movies.append(dune1)
+
+        try:
+            dune2 = Movie.objects.get(title="Dune: Part Two")
+            dune2.parent = dune_parent
+            dune2.part_number = 2
+            dune2.part_name = "Part Two"
+            dune2.video_url = "https://www.youtube.com/watch?v=Way9Dexny3w"
+            dune2.save()
+        except Movie.DoesNotExist:
+            pass
+
+        # 3. Avatar Collection
+        avatar_parent = Movie.objects.create(
+            title="Avatar Collection",
+            description="Enter the world of Pandora, where a paraplegic Marine embarks on a unique journey of adventure and love, fighting to protect the land he learns to call home.",
+            content_type="movie",
+            poster_url="https://image.tmdb.org/t/p/original/kyeqWJfphcuFF0TC0o4lY56u7Ls.jpg",
+            banner_url="https://image.tmdb.org/t/p/original/qnzQm0PCVnSyv1dqpVmRgMWHbLD.jpg",
+            video_url="https://www.youtube.com/watch?v=d9MyW72ELq0",
+            rating=9.0,
+            release_year=2022,
+            language="English",
+            duration="2 Movies",
+            is_trending=True,
+            is_popular=True,
+            cast="Sam Worthington, Zoe Saldana, Sigourney Weaver, Stephen Lang",
+            crew="Director: James Cameron",
+            display_order=160
+        )
+        avatar_parent.genres.add(genres_map['sci-fi'], genres_map['adventure'], genres_map['action'])
+        created_movies.append(avatar_parent)
+
+        avatar1 = Movie.objects.create(
+            title="Avatar",
+            description="A paraplegic Marine dispatched to the moon Pandora on a unique mission becomes torn between following his orders and protecting the world he feels is his home.",
+            content_type="movie",
+            poster_url="https://image.tmdb.org/t/p/original/kyeqWJfphcuFF0TC0o4lY56u7Ls.jpg",
+            banner_url="https://image.tmdb.org/t/p/original/vL526wSBrjSPV67j2RjUuSyjKga.jpg",
+            video_url="https://www.youtube.com/watch?v=5PSNL1q3fy8",
+            rating=8.9,
+            release_year=2009,
+            language="English",
+            duration="2h 42m",
+            cast="Sam Worthington, Zoe Saldana, Sigourney Weaver, Stephen Lang",
+            crew="Director: James Cameron",
+            parent=avatar_parent,
+            part_number=1,
+            part_name="Avatar"
+        )
+        avatar1.genres.add(genres_map['sci-fi'], genres_map['adventure'], genres_map['action'])
+        created_movies.append(avatar1)
+
+        try:
+            avatar2 = Movie.objects.get(title="Avatar: The Way of Water")
+            avatar2.parent = avatar_parent
+            avatar2.part_number = 2
+            avatar2.part_name = "The Way of Water"
+            avatar2.video_url = "https://www.youtube.com/watch?v=d9MyW72ELq0"
+            avatar2.save()
+        except Movie.DoesNotExist:
+            pass
+
+        # 4. Avengers Collection
+        avengers_parent = Movie.objects.create(
+            title="Avengers Collection",
+            description="Earth's Mightiest Heroes stand together to battle the threats that no single hero could withstand, culminating in the battle against the Mad Titan, Thanos.",
+            content_type="movie",
+            poster_url="https://image.tmdb.org/t/p/original/or7PzF6ZRkJGBlPp6oom5QYQ2yQ.jpg",
+            banner_url="https://image.tmdb.org/t/p/original/ulzhLuWrPK07P1YkdWQLZnQh1JL.jpg",
+            video_url="https://www.youtube.com/watch?v=TcMBFSGVi1c",
+            rating=9.5,
+            release_year=2019,
+            language="English",
+            duration="4 Movies",
+            is_trending=True,
+            is_popular=True,
+            cast="Robert Downey Jr., Chris Evans, Mark Ruffalo, Chris Hemsworth, Scarlett Johansson",
+            crew="Directors: Joss Whedon, Anthony Russo, Joe Russo",
+            display_order=260
+        )
+        avengers_parent.genres.add(genres_map['action'], genres_map['sci-fi'], genres_map['adventure'])
+        created_movies.append(avengers_parent)
+
+        av1 = Movie.objects.create(
+            title="The Avengers",
+            description="Earth's mightiest heroes must come together and learn to fight as a team if they are to stop the mischievous Loki and his alien army from enslaving humanity.",
+            content_type="movie",
+            poster_url="https://image.tmdb.org/t/p/original/RYMX2wc76YgXeRIyw6d6Z4SAjG.jpg",
+            banner_url="https://image.tmdb.org/t/p/original/9BBTo6m1X2p4d24W2r2kceJ76J8.jpg",
+            video_url="https://www.youtube.com/watch?v=eOrNdByGMv8",
+            rating=8.8,
+            release_year=2012,
+            language="English",
+            duration="2h 23m",
+            cast="Robert Downey Jr., Chris Evans, Scarlett Johansson, Mark Ruffalo",
+            crew="Director: Joss Whedon",
+            parent=avengers_parent,
+            part_number=1,
+            part_name="The Avengers"
+        )
+        av1.genres.add(genres_map['action'], genres_map['sci-fi'], genres_map['adventure'])
+        created_movies.append(av1)
+
+        av2 = Movie.objects.create(
+            title="Avengers: Age of Ultron",
+            description="When Tony Stark and Bruce Banner try to jump-start a dormant peacekeeping program called Ultron, things go horribly wrong and it's up to Earth's mightiest heroes to stop the villainous Ultron from enacting his terrible plan.",
+            content_type="movie",
+            poster_url="https://image.tmdb.org/t/p/original/4ssDuvj0MKmQki84I2Jrzq5zVaa.jpg",
+            banner_url="https://image.tmdb.org/t/p/original/87Wwquby7w7kZ77t465gA878401.jpg",
+            video_url="https://www.youtube.com/watch?v=tmeOjFno6Do",
+            rating=8.5,
+            release_year=2015,
+            language="English",
+            duration="2h 21m",
+            cast="Robert Downey Jr., Chris Evans, Mark Ruffalo, Chris Hemsworth",
+            crew="Director: Joss Whedon",
+            parent=avengers_parent,
+            part_number=2,
+            part_name="Age of Ultron"
+        )
+        av2.genres.add(genres_map['action'], genres_map['sci-fi'], genres_map['adventure'])
+        created_movies.append(av2)
+
+        av3 = Movie.objects.create(
+            title="Avengers: Infinity War",
+            description="The Avengers and their allies must be willing to sacrifice all in an attempt to defeat the powerful Thanos before his blitz of devastation and ruin puts an end to the universe.",
+            content_type="movie",
+            poster_url="https://image.tmdb.org/t/p/original/7WsyChwLEAx4xdIFqRxyz78V2si.jpg",
+            banner_url="https://image.tmdb.org/t/p/original/bOGkgm7gHn171t4t72nqpj1nPEb.jpg",
+            video_url="https://www.youtube.com/watch?v=QwievZ1Tx-8",
+            rating=9.3,
+            release_year=2018,
+            language="English",
+            duration="2h 29m",
+            cast="Robert Downey Jr., Chris Hemsworth, Mark Ruffalo, Chris Evans",
+            crew="Directors: Anthony Russo, Joe Russo",
+            parent=avengers_parent,
+            part_number=3,
+            part_name="Infinity War"
+        )
+        av3.genres.add(genres_map['action'], genres_map['sci-fi'], genres_map['adventure'])
+        created_movies.append(av3)
+
+        try:
+            av4 = Movie.objects.get(title="Avengers: Endgame")
+            av4.parent = avengers_parent
+            av4.part_number = 4
+            av4.part_name = "Endgame"
+            av4.video_url = "https://www.youtube.com/watch?v=TcMBFSGVi1c"
+            av4.save()
+        except Movie.DoesNotExist:
+            pass
+
+        # 5. The Conjuring Trilogy
+        conjuring_parent = Movie.objects.create(
+            title="The Conjuring Trilogy",
+            description="The chilling investigations of paranormal experts Ed and Lorraine Warren as they battle demonic entities and haunted houses.",
+            content_type="movie",
+            poster_url="https://image.tmdb.org/t/p/original/71727aVGR-LeNcwcUawssDsRp2X.jpg",
+            banner_url="https://image.tmdb.org/t/p/original/ecKQlAEG95k62SMGhvX83oEqANK.jpg",
+            video_url="https://www.youtube.com/watch?v=k10ETZ42q5o",
+            rating=8.7,
+            release_year=2021,
+            language="English",
+            duration="3 Movies",
+            is_trending=True,
+            is_popular=True,
+            cast="Vera Farmiga, Patrick Wilson",
+            crew="Directors: James Wan, Michael Chaves",
+            display_order=130
+        )
+        conjuring_parent.genres.add(genres_map['horror'], genres_map['thriller'])
+        created_movies.append(conjuring_parent)
+
+        try:
+            cj1 = Movie.objects.get(title="The Conjuring")
+            cj1.parent = conjuring_parent
+            cj1.part_number = 1
+            cj1.part_name = "The Conjuring"
+            cj1.video_url = "https://www.youtube.com/watch?v=k10ETZ42q5o"
+            cj1.save()
+        except Movie.DoesNotExist:
+            pass
+
+        cj2 = Movie.objects.create(
+            title="The Conjuring 2",
+            description="Ed and Lorraine Warren travel to North London to help a single mother raising four children alone in a house plagued by a supernatural spirit.",
+            content_type="movie",
+            poster_url="https://image.tmdb.org/t/p/original/71727aVGR-LeNcwcUawssDsRp2X.jpg",
+            banner_url="https://image.tmdb.org/t/p/original/q9m59lK28yO4VWh3q4V30o86rUa.jpg",
+            video_url="https://www.youtube.com/watch?v=VFsMuDlimuA",
+            rating=8.6,
+            release_year=2016,
+            language="English",
+            duration="2h 14m",
+            cast="Vera Farmiga, Patrick Wilson, Frances O'Connor",
+            crew="Director: James Wan",
+            parent=conjuring_parent,
+            part_number=2,
+            part_name="The Conjuring 2"
+        )
+        cj2.genres.add(genres_map['horror'], genres_map['thriller'])
+        created_movies.append(cj2)
+
+        cj3 = Movie.objects.create(
+            title="The Conjuring: The Devil Made Me Do It",
+            description="A chilling story of terror, murder and unknown evil that shocked even experienced real-life paranormal investigators Ed and Lorraine Warren.",
+            content_type="movie",
+            poster_url="https://image.tmdb.org/t/p/original/xbSu194Lh1VvG25v5a7t67v9C1k.jpg",
+            banner_url="https://image.tmdb.org/t/p/original/qi6v4x7jG7XnPEU4r792345O.jpg",
+            video_url="https://www.youtube.com/watch?v=h9Q4zZsOPTU",
+            rating=8.2,
+            release_year=2021,
+            language="English",
+            duration="1h 52m",
+            cast="Vera Farmiga, Patrick Wilson, Ruairi O'Connor",
+            crew="Director: Michael Chaves",
+            parent=conjuring_parent,
+            part_number=3,
+            part_name="The Devil Made Me Do It"
+        )
+        cj3.genres.add(genres_map['horror'], genres_map['thriller'])
+        created_movies.append(cj3)
+
+        # 6. TV Show Seasons: Stranger Things
+
+        try:
+            st_parent = Movie.objects.get(title="Stranger Things")
+            st_parent.duration = "5 Seasons"
+            st_parent.video_url = "https://www.youtube.com/watch?v=yQEondeGvKo"
+            st_parent.save()
+            
+            # Season 1
+            sts1 = Movie.objects.create(
+                title="Stranger Things: Season 1",
+                description="When a young boy vanishes, a small town uncovers a mystery involving secret experiments, terrifying supernatural forces and one strange little girl.",
+                content_type="series",
+                poster_url="https://image.tmdb.org/t/p/original/uOOtwVbSr4QDjAGIifLDwpb2Pdl.jpg",
+                banner_url="https://image.tmdb.org/t/p/original/56v2KjBlU4XaOv9rVYEQypROD7P.jpg",
+                video_url="https://www.youtube.com/watch?v=b9EkMc79ZSU",
+                rating=9.2,
+                release_year=2016,
+                language="English",
+                duration="8 Episodes",
+                cast="Millie Bobby Brown, Finn Wolfhard, Winona Ryder, David Harbour",
+                crew="Creators: The Duffer Brothers",
+                parent=st_parent,
+                part_number=1,
+                part_name="Season 1"
+            )
+            sts1.genres.add(genres_map['horror'], genres_map['sci-fi'], genres_map['thriller'])
+            created_movies.append(sts1)
+            
+            # Season 2
+            sts2 = Movie.objects.create(
+                title="Stranger Things: Season 2",
+                description="It's 1984 and the citizens of Hawkins, Indiana are still reeling from the horrors of the Demogorgon and the secrets of Hawkins Lab. Will Byers has been rescued from the Upside Down but a bigger, sinister entity still threatens those who survived.",
+                content_type="series",
+                poster_url="https://image.tmdb.org/t/p/original/l9zV3X8uMoxbC23iL7lUu8H1Jz4.jpg",
+                banner_url="https://image.tmdb.org/t/p/original/56v2KjBlU4XaOv9rVYEQypROD7P.jpg",
+                video_url="https://www.youtube.com/watch?v=vgS2L7WPIO4",
+                rating=9.0,
+                release_year=2017,
+                language="English",
+                duration="9 Episodes",
+                cast="Millie Bobby Brown, Finn Wolfhard, Winona Ryder, David Harbour, Sadie Sink",
+                crew="Creators: The Duffer Brothers",
+                parent=st_parent,
+                part_number=2,
+                part_name="Season 2"
+            )
+            sts2.genres.add(genres_map['horror'], genres_map['sci-fi'], genres_map['thriller'])
+            created_movies.append(sts2)
+            
+            # Season 3
+            sts3 = Movie.objects.create(
+                title="Stranger Things: Season 3",
+                description="Budding romance, a new mall, and a menacing threat looming in the summer heat of 1985 in Hawkins. Old and new enemies are reminding everyone that evil never ends; it explains and evolves.",
+                content_type="series",
+                poster_url="https://image.tmdb.org/t/p/original/x2Lw33d2v2ggEQEQ8122vJ7n.jpg",
+                banner_url="https://image.tmdb.org/t/p/original/56v2KjBlU4XaOv9rVYEQypROD7P.jpg",
+                video_url="https://www.youtube.com/watch?v=YEG3bmU_WaI",
+                rating=8.9,
+                release_year=2019,
+                language="English",
+                duration="8 Episodes",
+                cast="Millie Bobby Brown, Finn Wolfhard, Winona Ryder, David Harbour, Dacre Montgomery",
+                crew="Creators: The Duffer Brothers",
+                parent=st_parent,
+                part_number=3,
+                part_name="Season 3"
+            )
+            sts3.genres.add(genres_map['horror'], genres_map['sci-fi'], genres_map['thriller'])
+            created_movies.append(sts3)
+ 
+            # Season 4
+            sts4 = Movie.objects.create(
+                title="Stranger Things: Season 4",
+                description="It's been six months since the Battle of Starcourt, which brought terror and destruction to Hawkins. Struggling with the aftermath, our group of friends are separated for the first time – and navigating the complexities of high school hasn't made things any easier.",
+                content_type="series",
+                poster_url="https://m.media-amazon.com/images/M/MV5BNTc0YmQxMjEtODI5MC00NjFiLTlkMWUtOGQ5NjFmYWUyZGJhXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg",
+                banner_url="https://image.tmdb.org/t/p/original/56v2KjBlU4XaOv9rVYEQypROD7P.jpg",
+                video_url="https://www.youtube.com/watch?v=yQEondeGvKo",
+                rating=9.3,
+                release_year=2022,
+                language="English",
+                duration="9 Episodes",
+                cast="Millie Bobby Brown, Finn Wolfhard, Winona Ryder, David Harbour, Joseph Quinn",
+                crew="Creators: The Duffer Brothers",
+                parent=st_parent,
+                part_number=4,
+                part_name="Season 4"
+            )
+            sts4.genres.add(genres_map['horror'], genres_map['sci-fi'], genres_map['thriller'])
+            created_movies.append(sts4)
+            
+            # Season 5
+            sts5 = Movie.objects.create(
+                title="Stranger Things: Season 5",
+                description="The final season of the epic saga, as the gang confronts the Upside Down once and for all.",
+                content_type="series",
+                poster_url="https://image.tmdb.org/t/p/original/uOOtwVbSr4QDjAGIifLDwpb2Pdl.jpg",
+                banner_url="https://image.tmdb.org/t/p/original/56v2KjBlU4XaOv9rVYEQypROD7P.jpg",
+                video_url="https://www.youtube.com/watch?v=b1BvO8Zp3wY",
+                rating=9.6,
+                release_year=2025,
+                language="English",
+                duration="8 Episodes",
+                cast="Millie Bobby Brown, Finn Wolfhard, Winona Ryder, David Harbour",
+                crew="Creators: The Duffer Brothers",
+                parent=st_parent,
+                part_number=5,
+                part_name="Season 5"
+            )
+            sts5.genres.add(genres_map['horror'], genres_map['sci-fi'], genres_map['thriller'])
+            created_movies.append(sts5)
+        except Movie.DoesNotExist:
+            pass
+
         self.stdout.write("Creating users...")
         # Superuser
         if not User.objects.filter(username='admin').exists():
