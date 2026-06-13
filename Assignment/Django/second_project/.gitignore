@@ -1,0 +1,23 @@
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Django local DB & logs
+db.sqlite3
+*.log
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+
+# Frontend dependencies
+node_modules/
+
+# OS files
+.DS_Store
+Thumbs.db
