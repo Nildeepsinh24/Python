@@ -15,6 +15,7 @@ urlpatterns = [
     path('admin-dashboard/catalog/add/', views.admin_add_movie, name='admin_add_movie'),
     path('admin-dashboard/catalog/edit/<int:movie_id>/', views.admin_edit_movie, name='admin_edit_movie'),
     path('admin-dashboard/catalog/delete/<int:movie_id>/', views.admin_delete_movie, name='admin_delete_movie'),
+    path('admin-dashboard/users/delete/<int:user_id>/', views.admin_delete_user, name='admin_delete_user'),
     path('admin-dashboard/catalog/reorder/', views.admin_reorder_movie, name='admin_reorder_movie'),
     path('subscription/', views.subscription_plans, name='subscription_plans'),
     path('search/', views.search_results, name='search_results'),

@@ -986,6 +986,15 @@ try:
             "video_url": "https://www.youtube.com/watch?v=oqxAJKy0ii4",
             "rating": 8.8,
         },
+        {
+            "title": "Squid Game: Season 3",
+            "description": "The third and final season of the global phenomenon. The deadly games continue as the stakes reach an all-time high.",
+            "release_year": 2025,
+            "duration": "Upcoming",
+            "cast": "Lee Jung-jae, Park Hae-soo, Wi Ha-joon, HoYeon Jung, O Yeong-su",
+            "video_url": "https://www.youtube.com/watch?v=oqxAJKy0ii4",
+            "rating": 8.0,
+        },
     ]
 
     for i, s in enumerate(sg_seasons, 1):

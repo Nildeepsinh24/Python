@@ -170,6 +170,31 @@ function AdminDashboard({ payload, csrfToken }) {
     }
   };
 
+  // Delete User
+  const deleteUser = (userId, username) => {
+    if (window.confirm(`Are you sure you want to remove user "${username}"? This action cannot be undone.`)) {
+      fetch(`/admin-dashboard/users/delete/${userId}/`, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': csrfToken
+        }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'success') {
+          showToast(`User "${username}" removed successfully.`, 'success');
+          setTimeout(() => window.location.reload(), 800);
+        } else {
+          showToast(data.message || 'Error removing user.', 'error');
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        showToast('An error occurred.', 'error');
+      });
+    }
+  };
+
   // Form submit handlers (AJAX + refresh)
   const handleFormSubmit = (e, successMessage) => {
     e.preventDefault();
@@ -405,6 +430,7 @@ function AdminDashboard({ payload, csrfToken }) {
                       <th className="px-6 py-4 uppercase">Plan</th>
                       <th className="px-6 py-4 uppercase">Status</th>
                       <th className="px-6 py-4 text-right uppercase">Joined Date</th>
+                      <th className="px-6 py-4 text-center uppercase">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/5">
@@ -423,11 +449,20 @@ function AdminDashboard({ payload, csrfToken }) {
                         <td className="px-6 py-4 text-right text-on-surface-variant text-white/70 text-sm">
                           {u.date_joined}
                         </td>
+                        <td className="px-6 py-4 text-center">
+                          <button
+                            onClick={() => deleteUser(u.id, u.username)}
+                            className="p-1 hover:bg-red-500/20 text-red-400 rounded transition-colors inline-flex items-center justify-center cursor-pointer"
+                            title="Remove User"
+                          >
+                            <span className="material-symbols-outlined text-sm">person_remove</span>
+                          </button>
+                        </td>
                       </tr>
                     ))}
                     {users.length === 0 && (
                       <tr>
-                        <td colSpan="4" className="p-6 text-center text-on-surface-variant text-sm">No registered accounts.</td>
+                        <td colSpan="5" className="p-6 text-center text-on-surface-variant text-sm">No registered accounts.</td>
                       </tr>
                     )}
                   </tbody>

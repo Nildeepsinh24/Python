@@ -214,12 +214,11 @@ function Watch({ payload, user, csrfToken }) {
         {ytId ? (
           <iframe 
             className="w-full h-full object-contain bg-black relative z-10"
-            src={`https://www.youtube-nocookie.com/embed/${ytId}?autoplay=1&controls=1&rel=0`}
+            src={`https://www.youtube.com/embed/${ytId}?autoplay=1&rel=0`}
             title={movie.title}
             frameBorder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
-            referrerPolicy="strict-origin-when-cross-origin"
           />
         ) : (
           <video 

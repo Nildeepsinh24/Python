@@ -828,6 +828,21 @@ def admin_delete_movie(request, movie_id):
 
 @login_required
 @csrf_exempt
+def admin_delete_user(request, user_id):
+    if not (request.user.is_staff or request.user.is_superuser or request.user.username == 'admin'):
+        return JsonResponse({'status': 'error', 'message': 'Permission denied.'}, status=403)
+        
+    if request.method == 'POST':
+        user_to_delete = get_object_or_404(User, id=user_id)
+        if user_to_delete.is_superuser or user_to_delete.username == 'admin':
+             return JsonResponse({'status': 'error', 'message': 'Cannot delete an admin user.'}, status=403)
+        user_to_delete.delete()
+        return JsonResponse({'status': 'success'})
+    return JsonResponse({'status': 'error', 'message': 'Invalid method.'}, status=400)
+
+
+@login_required
+@csrf_exempt
 def admin_reorder_movie(request):
     if not (request.user.is_staff or request.user.is_superuser or request.user.username == 'admin'):
         return JsonResponse({'status': 'error', 'message': 'Permission denied.'}, status=403)
