@@ -378,7 +378,7 @@ function AdminDashboard({ payload, csrfToken }) {
                       style={{ height: `${pct}%` }} 
                       className="flex-1 bg-primary-container/30 rounded-t-lg hover:bg-primary-container/50 transition-all duration-300 relative group cursor-pointer"
                     >
-                      <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-[#1E2020] p-2 rounded text-[10px] opacity-0 group-hover:opacity-100 transition-opacity text-white z-20 whitespace-nowrap">
+                      <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-xs text-white/90 font-bold z-20 whitespace-nowrap">
                         {d.count}
                       </div>
                     </div>
