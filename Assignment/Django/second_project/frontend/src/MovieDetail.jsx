@@ -1,13 +1,5 @@
 import { useState } from 'react'
 
-// Helper to extract YouTube Video ID
-const getYouTubeId = (url) => {
-  if (!url) return null;
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-  const match = url.match(regExp);
-  return (match && match[2].length === 11) ? match[2] : null;
-};
-
 function MovieDetail({ payload, user, csrfToken }) {
   const {
     movie,
@@ -22,9 +14,6 @@ function MovieDetail({ payload, user, csrfToken }) {
 
   const [inWatchlist, setInWatchlist] = useState(initialInWatchlist);
   const [inFavorites, setInFavorites] = useState(initialInFavorites);
-  const [isTrailerOpen, setIsTrailerOpen] = useState(false);
-
-  const ytId = getYouTubeId(movie.video_url);
 
   const playableMovieId = (parts.length > 0 && (movie.content_type === 'series' ? !movie.parent_id : parts.some(p => p.id === movie.id) && movie.id === parent_movie?.id)) ? parts[0].id : movie.id;
 
@@ -121,16 +110,6 @@ function MovieDetail({ payload, user, csrfToken }) {
                 <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>play_arrow</span>
                 <span>Play Now</span>
               </a>
-
-              {ytId && (
-                <button 
-                  onClick={() => setIsTrailerOpen(true)}
-                  className="px-6 py-3.5 bg-white/10 hover:bg-white/15 text-white font-bold rounded-xl transition-all flex items-center gap-2 border border-white/10 cursor-pointer"
-                >
-                  <span className="material-symbols-outlined">smart_display</span>
-                  <span>Watch Trailer</span>
-                </button>
-              )}
               
               <button 
                 onClick={toggleWatchlist}
@@ -304,29 +283,6 @@ function MovieDetail({ payload, user, csrfToken }) {
           </section>
         )}
       </div>
-
-      {/* Trailer Modal Lightbox */}
-      {isTrailerOpen && ytId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/95 backdrop-blur-md animate-fade-in">
-          <div className="relative w-full max-w-4xl aspect-video bg-black rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
-            <button 
-              onClick={() => setIsTrailerOpen(false)}
-              className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80 border border-white/10 transition-all cursor-pointer"
-            >
-              <span className="material-symbols-outlined">close</span>
-            </button>
-            <iframe 
-              className="w-full h-full"
-              src={`https://www.youtube-nocookie.com/embed/${ytId}?autoplay=1&controls=1&rel=0`}
-              title={`${movie.title} Trailer`}
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              referrerPolicy="strict-origin-when-cross-origin"
-            />
-          </div>
-        </div>
-      )}
     </div>
   );
 }
