@@ -7,6 +7,10 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'second_project.settings')
 django.setup()
 
+# Avoid UnicodeEncodeError on Windows terminals
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8')
+
 from cine_verse.models import Genre, Movie
 
 print("Connected to database:", django.db.connection.settings_dict['NAME'])
@@ -57,14 +61,18 @@ def upsert_movie(title, defaults, genre_slugs=[]):
 # -------------------------------------------------------
 print("\n--- The Dark Knight Trilogy ---")
 try:
-    dk_parent = Movie.objects.get(title="The Dark Knight")
-    # Rename parent to trilogy collection
-    dk_parent.title = "The Dark Knight Trilogy"
-    dk_parent.duration = "3 Movies"
-    dk_parent.description = "Christopher Nolan's groundbreaking trilogy following Bruce Wayne's journey from a grief-stricken young man to Gotham's legendary protector, Batman."
-    dk_parent.release_year = 2012
-    dk_parent.save()
-    print(f"  Updated parent: The Dark Knight Trilogy")
+    dk_parent = Movie.objects.filter(title="The Dark Knight Trilogy").first()
+    if not dk_parent:
+        dk_parent = Movie.objects.get(title="The Dark Knight", parent__isnull=True)
+        # Rename parent to trilogy collection
+        dk_parent.title = "The Dark Knight Trilogy"
+        dk_parent.duration = "3 Movies"
+        dk_parent.description = "Christopher Nolan's groundbreaking trilogy following Bruce Wayne's journey from a grief-stricken young man to Gotham's legendary protector, Batman."
+        dk_parent.release_year = 2012
+        dk_parent.save()
+        print(f"  Updated parent: The Dark Knight Trilogy")
+    else:
+        print(f"  Found existing parent: The Dark Knight Trilogy")
 
     upsert_movie(
         title="Batman Begins",
@@ -136,13 +144,17 @@ except Movie.DoesNotExist:
 # -------------------------------------------------------
 print("\n--- John Wick Collection ---")
 try:
-    jw_parent = Movie.objects.get(title="John Wick: Chapter 4")
-    jw_parent.title = "John Wick Collection"
-    jw_parent.duration = "4 Movies"
-    jw_parent.description = "The legendary saga of retired hitman John Wick, who is drawn back into the criminal underworld he tried to leave behind."
-    jw_parent.release_year = 2023
-    jw_parent.save()
-    print(f"  Updated parent: John Wick Collection")
+    jw_parent = Movie.objects.filter(title="John Wick Collection").first()
+    if not jw_parent:
+        jw_parent = Movie.objects.get(title="John Wick: Chapter 4", parent__isnull=True)
+        jw_parent.title = "John Wick Collection"
+        jw_parent.duration = "4 Movies"
+        jw_parent.description = "The legendary saga of retired hitman John Wick, who is drawn back into the criminal underworld he tried to leave behind."
+        jw_parent.release_year = 2023
+        jw_parent.save()
+        print(f"  Updated parent: John Wick Collection")
+    else:
+        print(f"  Found existing parent: John Wick Collection")
 
     upsert_movie(
         title="John Wick",
@@ -235,13 +247,17 @@ except Movie.DoesNotExist:
 # -------------------------------------------------------
 print("\n--- The Godfather Trilogy ---")
 try:
-    gf_parent = Movie.objects.get(title="The Godfather")
-    gf_parent.title = "The Godfather Trilogy"
-    gf_parent.duration = "3 Movies"
-    gf_parent.description = "The epic saga of the Corleone crime family, spanning decades of power, betrayal, and the dark cost of the American Dream."
-    gf_parent.release_year = 1990
-    gf_parent.save()
-    print(f"  Updated parent: The Godfather Trilogy")
+    gf_parent = Movie.objects.filter(title="The Godfather Trilogy").first()
+    if not gf_parent:
+        gf_parent = Movie.objects.get(title="The Godfather", parent__isnull=True)
+        gf_parent.title = "The Godfather Trilogy"
+        gf_parent.duration = "3 Movies"
+        gf_parent.description = "The epic saga of the Corleone crime family, spanning decades of power, betrayal, and the dark cost of the American Dream."
+        gf_parent.release_year = 1990
+        gf_parent.save()
+        print(f"  Updated parent: The Godfather Trilogy")
+    else:
+        print(f"  Found existing parent: The Godfather Trilogy")
 
     upsert_movie(
         title="The Godfather",
@@ -313,13 +329,17 @@ except Movie.DoesNotExist:
 # -------------------------------------------------------
 print("\n--- The Matrix Collection ---")
 try:
-    mx_parent = Movie.objects.get(title="The Matrix")
-    mx_parent.title = "The Matrix Collection"
-    mx_parent.duration = "4 Movies"
-    mx_parent.description = "The visionary sci-fi saga exploring the nature of reality, where a computer hacker discovers that all of humanity lives inside a simulated world created by machines."
-    mx_parent.release_year = 2021
-    mx_parent.save()
-    print(f"  Updated parent: The Matrix Collection")
+    mx_parent = Movie.objects.filter(title="The Matrix Collection").first()
+    if not mx_parent:
+        mx_parent = Movie.objects.get(title="The Matrix", parent__isnull=True)
+        mx_parent.title = "The Matrix Collection"
+        mx_parent.duration = "4 Movies"
+        mx_parent.description = "The visionary sci-fi saga exploring the nature of reality, where a computer hacker discovers that all of humanity lives inside a simulated world created by machines."
+        mx_parent.release_year = 2021
+        mx_parent.save()
+        print(f"  Updated parent: The Matrix Collection")
+    else:
+        print(f"  Found existing parent: The Matrix Collection")
 
     upsert_movie(
         title="The Matrix",
@@ -412,13 +432,17 @@ except Movie.DoesNotExist:
 # -------------------------------------------------------
 print("\n--- A Quiet Place Collection ---")
 try:
-    aqp_parent = Movie.objects.get(title="A Quiet Place")
-    aqp_parent.title = "A Quiet Place Collection"
-    aqp_parent.duration = "3 Movies"
-    aqp_parent.description = "A gripping horror franchise where humanity must survive in silence against creatures that hunt by sound."
-    aqp_parent.release_year = 2024
-    aqp_parent.save()
-    print(f"  Updated parent: A Quiet Place Collection")
+    aqp_parent = Movie.objects.filter(title="A Quiet Place Collection").first()
+    if not aqp_parent:
+        aqp_parent = Movie.objects.get(title="A Quiet Place", parent__isnull=True)
+        aqp_parent.title = "A Quiet Place Collection"
+        aqp_parent.duration = "3 Movies"
+        aqp_parent.description = "A gripping horror franchise where humanity must survive in silence against creatures that hunt by sound."
+        aqp_parent.release_year = 2024
+        aqp_parent.save()
+        print(f"  Updated parent: A Quiet Place Collection")
+    else:
+        print(f"  Found existing parent: A Quiet Place Collection")
 
     upsert_movie(
         title="A Quiet Place",
@@ -490,13 +514,17 @@ except Movie.DoesNotExist:
 # -------------------------------------------------------
 print("\n--- It Collection ---")
 try:
-    it_parent = Movie.objects.get(title="It")
-    it_parent.title = "It Collection"
-    it_parent.duration = "2 Movies"
-    it_parent.description = "Stephen King's terrifying tale of Pennywise the Dancing Clown, a shape-shifting evil that preys on the children of Derry, Maine every 27 years."
-    it_parent.release_year = 2019
-    it_parent.save()
-    print(f"  Updated parent: It Collection")
+    it_parent = Movie.objects.filter(title="It Collection").first()
+    if not it_parent:
+        it_parent = Movie.objects.get(title="It", parent__isnull=True)
+        it_parent.title = "It Collection"
+        it_parent.duration = "2 Movies"
+        it_parent.description = "Stephen King's terrifying tale of Pennywise the Dancing Clown, a shape-shifting evil that preys on the children of Derry, Maine every 27 years."
+        it_parent.release_year = 2019
+        it_parent.save()
+        print(f"  Updated parent: It Collection")
+    else:
+        print(f"  Found existing parent: It Collection")
 
     upsert_movie(
         title="It",
@@ -547,13 +575,17 @@ except Movie.DoesNotExist:
 # -------------------------------------------------------
 print("\n--- Blade Runner Collection ---")
 try:
-    br_parent = Movie.objects.get(title="Blade Runner 2049")
-    br_parent.title = "Blade Runner Collection"
-    br_parent.duration = "2 Movies"
-    br_parent.description = "The visionary sci-fi saga exploring what it means to be human in a dystopian future where bioengineered beings walk among us."
-    br_parent.release_year = 2017
-    br_parent.save()
-    print(f"  Updated parent: Blade Runner Collection")
+    br_parent = Movie.objects.filter(title="Blade Runner Collection").first()
+    if not br_parent:
+        br_parent = Movie.objects.get(title="Blade Runner 2049", parent__isnull=True)
+        br_parent.title = "Blade Runner Collection"
+        br_parent.duration = "2 Movies"
+        br_parent.description = "The visionary sci-fi saga exploring what it means to be human in a dystopian future where bioengineered beings walk among us."
+        br_parent.release_year = 2017
+        br_parent.save()
+        print(f"  Updated parent: Blade Runner Collection")
+    else:
+        print(f"  Found existing parent: Blade Runner Collection")
 
     upsert_movie(
         title="Blade Runner",
@@ -604,13 +636,17 @@ except Movie.DoesNotExist:
 # -------------------------------------------------------
 print("\n--- Gladiator Collection ---")
 try:
-    glad_parent = Movie.objects.get(title="Gladiator")
-    glad_parent.title = "Gladiator Collection"
-    glad_parent.duration = "2 Movies"
-    glad_parent.description = "Ridley Scott's epic saga of vengeance, honor, and glory in ancient Rome — spanning generations of warriors who defy emperors in the Colosseum."
-    glad_parent.release_year = 2024
-    glad_parent.save()
-    print(f"  Updated parent: Gladiator Collection")
+    glad_parent = Movie.objects.filter(title="Gladiator Collection").first()
+    if not glad_parent:
+        glad_parent = Movie.objects.get(title="Gladiator", parent__isnull=True)
+        glad_parent.title = "Gladiator Collection"
+        glad_parent.duration = "2 Movies"
+        glad_parent.description = "Ridley Scott's epic saga of vengeance, honor, and glory in ancient Rome — spanning generations of warriors who defy emperors in the Colosseum."
+        glad_parent.release_year = 2024
+        glad_parent.save()
+        print(f"  Updated parent: Gladiator Collection")
+    else:
+        print(f"  Found existing parent: Gladiator Collection")
 
     upsert_movie(
         title="Gladiator",
@@ -1263,5 +1299,434 @@ try:
         )
 except Movie.DoesNotExist:
     print("  SKIP: 'From' not found in DB")
+
+# -------------------------------------------------------
+# 18. Succession - 4 Seasons
+# -------------------------------------------------------
+print("\n--- Succession Seasons ---")
+try:
+    suc_parent = Movie.objects.get(title="Succession")
+    suc_parent.duration = "4 Seasons"
+    suc_parent.save()
+
+    suc_seasons = [
+        {
+            "title": "Succession: Season 1",
+            "description": "The Roy family, known for controlling the biggest media and entertainment company in the world, is exploring what the future will look like for them when the aging patriarch begins to step back.",
+            "release_year": 2018,
+            "duration": "10 Episodes",
+            "cast": "Brian Cox, Jeremy Strong, Sarah Snook, Kieran Culkin, Alan Ruck",
+            "video_url": "https://www.youtube.com/watch?v=OzY2qqZpe2A",
+            "rating": 8.8,
+        },
+        {
+            "title": "Succession: Season 2",
+            "description": "The Roy family's battle for control of Waystar Royco intensifies as Kendall tries to recover from his failed coup, while Logan consolidates power and grooms his children for succession.",
+            "release_year": 2019,
+            "duration": "10 Episodes",
+            "cast": "Brian Cox, Jeremy Strong, Sarah Snook, Kieran Culkin, Nicholas Braun",
+            "video_url": "https://www.youtube.com/watch?v=OzY2qqZpe2A",
+            "rating": 9.3,
+        },
+        {
+            "title": "Succession: Season 3",
+            "description": "Ambushed by his rebellious son Kendall at the end of Season 2, Logan Roy begins Season 3 in a perilous position. Scrambling to secure familial, political, and financial alliances.",
+            "release_year": 2021,
+            "duration": "9 Episodes",
+            "cast": "Brian Cox, Jeremy Strong, Sarah Snook, Kieran Culkin, Adrien Brody",
+            "video_url": "https://www.youtube.com/watch?v=OzY2qqZpe2A",
+            "rating": 9.4,
+        },
+        {
+            "title": "Succession: Season 4",
+            "description": "The final season follows the Roy siblings as they contemplate a future without their father, navigating the sale of the company and their own ambitions in a battle that will determine who comes out on top.",
+            "release_year": 2023,
+            "duration": "10 Episodes",
+            "cast": "Brian Cox, Jeremy Strong, Sarah Snook, Kieran Culkin, Matthew Macfadyen",
+            "video_url": "https://www.youtube.com/watch?v=OzY2qqZpe2A",
+            "rating": 9.6,
+        },
+    ]
+
+    for i, s in enumerate(suc_seasons, 1):
+        upsert_movie(
+            title=s["title"],
+            defaults={
+                "description": s["description"],
+                "content_type": "series",
+                "poster_url": suc_parent.poster_url,
+                "banner_url": suc_parent.banner_url,
+                "video_url": s["video_url"],
+                "rating": s["rating"],
+                "release_year": s["release_year"],
+                "language": "English",
+                "duration": s["duration"],
+                "cast": s["cast"],
+                "crew": "Creator: Jesse Armstrong",
+                "parent": suc_parent,
+                "part_number": i,
+                "part_name": f"Season {i}"
+            },
+            genre_slugs=['drama']
+        )
+except Movie.DoesNotExist:
+    print("  SKIP: 'Succession' not found in DB")
+
+# -------------------------------------------------------
+# 19. Ted Lasso - 3 Seasons
+# -------------------------------------------------------
+print("\n--- Ted Lasso Seasons ---")
+try:
+    tl_parent = Movie.objects.get(title="Ted Lasso")
+    tl_parent.duration = "3 Seasons"
+    tl_parent.save()
+
+    tl_seasons = [
+        {
+            "title": "Ted Lasso: Season 1",
+            "description": "American college football coach Ted Lasso heads to London to manage AFC Richmond, a struggling English Premier League soccer team. Despite having no experience, his unrelenting optimism wins over the players.",
+            "release_year": 2020,
+            "duration": "10 Episodes",
+            "cast": "Jason Sudeikis, Hannah Waddingham, Brett Goldstein, Brendan Hunt, Juno Temple",
+            "video_url": "https://www.youtube.com/watch?v=3m_R-1t-hEE",
+            "rating": 9.0,
+        },
+        {
+            "title": "Ted Lasso: Season 2",
+            "description": "Ted Lasso and the team at AFC Richmond struggle to come to terms with their relegation as they face new challenges on and off the pitch. Ted's positivity is tested like never before.",
+            "release_year": 2021,
+            "duration": "12 Episodes",
+            "cast": "Jason Sudeikis, Hannah Waddingham, Brett Goldstein, Brendan Hunt, Juno Temple",
+            "video_url": "https://www.youtube.com/watch?v=3m_R-1t-hEE",
+            "rating": 8.9,
+        },
+        {
+            "title": "Ted Lasso: Season 3",
+            "description": "In the final season, Ted and the team pursue the Premier League title while grappling with personal revelations, career decisions, and the bonds that have made them a family.",
+            "release_year": 2023,
+            "duration": "12 Episodes",
+            "cast": "Jason Sudeikis, Hannah Waddingham, Brett Goldstein, Brendan Hunt, Phil Dunster",
+            "video_url": "https://www.youtube.com/watch?v=3m_R-1t-hEE",
+            "rating": 8.8,
+        },
+    ]
+
+    for i, s in enumerate(tl_seasons, 1):
+        upsert_movie(
+            title=s["title"],
+            defaults={
+                "description": s["description"],
+                "content_type": "series",
+                "poster_url": tl_parent.poster_url,
+                "banner_url": tl_parent.banner_url,
+                "video_url": s["video_url"],
+                "rating": s["rating"],
+                "release_year": s["release_year"],
+                "language": "English",
+                "duration": s["duration"],
+                "cast": s["cast"],
+                "crew": "Creators: Jason Sudeikis, Bill Lawrence, Brendan Hunt, Joe Kelly",
+                "parent": tl_parent,
+                "part_number": i,
+                "part_name": f"Season {i}"
+            },
+            genre_slugs=['comedy', 'drama']
+        )
+except Movie.DoesNotExist:
+    print("  SKIP: 'Ted Lasso' not found in DB")
+
+# -------------------------------------------------------
+# 20. The Legend of Vox Machina - 3 Seasons
+# -------------------------------------------------------
+print("\n--- The Legend of Vox Machina Seasons ---")
+try:
+    vox_parent = Movie.objects.get(title="The Legend of Vox Machina")
+    vox_parent.duration = "3 Seasons"
+    vox_parent.save()
+
+    vox_seasons = [
+        {
+            "title": "The Legend of Vox Machina: Season 1",
+            "description": "A band of misfits known as Vox Machina are hired to save the realm from dark magical forces. Their journey takes them from a simple tavern to the halls of power.",
+            "release_year": 2022,
+            "duration": "12 Episodes",
+            "cast": "Laura Bailey, Matthew Mercer, Ashley Johnson, Liam O'Brien, Sam Riegel, Travis Willingham",
+            "video_url": "https://www.youtube.com/watch?v=JvxBy_3PsnU",
+            "rating": 8.8,
+        },
+        {
+            "title": "The Legend of Vox Machina: Season 2",
+            "description": "Vox Machina faces the terrifying Chroma Conclave, a group of ancient dragons threatening to destroy Tal'Dorei. The team must find legendary weapons to stand a chance.",
+            "release_year": 2023,
+            "duration": "12 Episodes",
+            "cast": "Laura Bailey, Matthew Mercer, Ashley Johnson, Liam O'Brien, Sam Riegel, Travis Willingham",
+            "video_url": "https://www.youtube.com/watch?v=JvxBy_3PsnU",
+            "rating": 9.0,
+        },
+        {
+            "title": "The Legend of Vox Machina: Season 3",
+            "description": "The epic battle against the Chroma Conclave reaches its conclusion as Vox Machina gathers the final Vestiges of Divergence and prepares for the ultimate showdown.",
+            "release_year": 2024,
+            "duration": "12 Episodes",
+            "cast": "Laura Bailey, Matthew Mercer, Ashley Johnson, Liam O'Brien, Sam Riegel, Travis Willingham",
+            "video_url": "https://www.youtube.com/watch?v=JvxBy_3PsnU",
+            "rating": 9.1,
+        },
+    ]
+
+    for i, s in enumerate(vox_seasons, 1):
+        upsert_movie(
+            title=s["title"],
+            defaults={
+                "description": s["description"],
+                "content_type": "series",
+                "poster_url": vox_parent.poster_url,
+                "banner_url": vox_parent.banner_url,
+                "video_url": s["video_url"],
+                "rating": s["rating"],
+                "release_year": s["release_year"],
+                "language": "English",
+                "duration": s["duration"],
+                "cast": s["cast"],
+                "crew": "Creators: Critical Role, Brandon Auman",
+                "parent": vox_parent,
+                "part_number": i,
+                "part_name": f"Season {i}"
+            },
+            genre_slugs=['action', 'adventure', 'comedy']
+        )
+except Movie.DoesNotExist:
+    print("  SKIP: 'The Legend of Vox Machina' not found in DB")
+
+# -------------------------------------------------------
+# 21. Shōgun - 2 Seasons
+# -------------------------------------------------------
+print("\n--- Shōgun Seasons ---")
+try:
+    shogun_parent = Movie.objects.get(title="Shōgun")
+    shogun_parent.duration = "2 Seasons"
+    shogun_parent.save()
+
+    shogun_seasons = [
+        {
+            "title": "Shōgun: Season 1",
+            "description": "In Japan in the year 1600, a mysterious European ship is found marooned in a nearby fishing village. Lord Yoshii Toranaga discovers the political and military advantages of the Englishman John Blackthorne.",
+            "release_year": 2024,
+            "duration": "10 Episodes",
+            "cast": "Hiroyuki Sanada, Cosmo Jarvis, Anna Sawai, Tadanobu Asano, Takehiro Hira",
+            "video_url": "https://www.youtube.com/watch?v=187jCMjMfaA",
+            "rating": 9.5,
+        },
+        {
+            "title": "Shōgun: Season 2",
+            "description": "The epic saga continues as Toranaga maneuvers toward the ultimate seat of power in feudal Japan, with alliances tested and new threats emerging from within.",
+            "release_year": 2025,
+            "duration": "10 Episodes",
+            "cast": "Hiroyuki Sanada, Cosmo Jarvis, Anna Sawai, Tadanobu Asano",
+            "video_url": "https://www.youtube.com/watch?v=187jCMjMfaA",
+            "rating": 9.3,
+        },
+    ]
+
+    for i, s in enumerate(shogun_seasons, 1):
+        upsert_movie(
+            title=s["title"],
+            defaults={
+                "description": s["description"],
+                "content_type": "series",
+                "poster_url": shogun_parent.poster_url,
+                "banner_url": shogun_parent.banner_url,
+                "video_url": s["video_url"],
+                "rating": s["rating"],
+                "release_year": s["release_year"],
+                "language": "Japanese",
+                "duration": s["duration"],
+                "cast": s["cast"],
+                "crew": "Creators: Rachel Kondo, Justin Marks",
+                "parent": shogun_parent,
+                "part_number": i,
+                "part_name": f"Season {i}"
+            },
+            genre_slugs=['drama', 'adventure']
+        )
+except Movie.DoesNotExist:
+    print("  SKIP: 'Shōgun' not found in DB")
+
+# -------------------------------------------------------
+# 22. The Haunting of Hill House - 1 Season (mini-series style)
+# -------------------------------------------------------
+print("\n--- The Haunting of Hill House Season ---")
+try:
+    hh_parent = Movie.objects.get(title="The Haunting of Hill House")
+    hh_parent.duration = "1 Season"
+    hh_parent.save()
+
+    upsert_movie(
+        title="The Haunting of Hill House: Season 1",
+        defaults={
+            "description": "Flashing between past and present, a fractured family confronts haunting memories of their old home and the terrifying events that drove them from it.",
+            "content_type": "series",
+            "poster_url": hh_parent.poster_url,
+            "banner_url": hh_parent.banner_url,
+            "video_url": "https://www.youtube.com/watch?v=LLysGx0dQ1o",
+            "rating": 9.2,
+            "release_year": 2018,
+            "language": "English",
+            "duration": "10 Episodes",
+            "cast": "Michiel Huisman, Carla Gugino, Henry Thomas, Elizabeth Reaser, Victoria Pedretti",
+            "crew": "Creator: Mike Flanagan",
+            "parent": hh_parent,
+            "part_number": 1,
+            "part_name": "Season 1"
+        },
+        genre_slugs=['horror', 'drama', 'mystery']
+    )
+except Movie.DoesNotExist:
+    print("  SKIP: 'The Haunting of Hill House' not found in DB")
+
+# -------------------------------------------------------
+# 23. Farzi - 2 Seasons
+# -------------------------------------------------------
+print("\n--- Farzi Seasons ---")
+try:
+    farzi_parent = Movie.objects.get(title="Farzi")
+    farzi_parent.duration = "2 Seasons"
+    farzi_parent.save()
+
+    farzi_seasons = [
+        {
+            "title": "Farzi: Season 1",
+            "description": "A brilliant artist is drawn into the world of counterfeit currency. A fiery task force officer embarks on a mission to catch the counterfeiter, leading to a riveting cat-and-mouse chase.",
+            "release_year": 2023,
+            "duration": "8 Episodes",
+            "cast": "Shahid Kapoor, Vijay Sethupathi, Raashii Khanna, Kay Kay Menon, Regina Cassandra",
+            "video_url": "https://www.youtube.com/watch?v=33-J_V_t56A",
+            "rating": 9.0,
+        },
+        {
+            "title": "Farzi: Season 2",
+            "description": "The stakes are raised as the cat-and-mouse game between the counterfeiter and the law continues with even more dangerous players entering the fray.",
+            "release_year": 2025,
+            "duration": "8 Episodes",
+            "cast": "Shahid Kapoor, Vijay Sethupathi, Raashii Khanna, Kay Kay Menon",
+            "video_url": "https://www.youtube.com/watch?v=33-J_V_t56A",
+            "rating": 8.8,
+        },
+    ]
+
+    for i, s in enumerate(farzi_seasons, 1):
+        upsert_movie(
+            title=s["title"],
+            defaults={
+                "description": s["description"],
+                "content_type": "series",
+                "poster_url": farzi_parent.poster_url,
+                "banner_url": farzi_parent.banner_url,
+                "video_url": s["video_url"],
+                "rating": s["rating"],
+                "release_year": s["release_year"],
+                "language": "Hindi",
+                "duration": s["duration"],
+                "cast": s["cast"],
+                "crew": "Creators: Raj Nidimoru, Krishna D.K.",
+                "parent": farzi_parent,
+                "part_number": i,
+                "part_name": f"Season {i}"
+            },
+            genre_slugs=['crime', 'thriller', 'drama']
+        )
+except Movie.DoesNotExist:
+    print("  SKIP: 'Farzi' not found in DB")
+
+# -------------------------------------------------------
+# 24. The Office - 9 Seasons (replace partial entries)
+# -------------------------------------------------------
+print("\n--- The Office Seasons ---")
+try:
+    office_parent = Movie.objects.get(title="The Office")
+    office_parent.duration = "9 Seasons"
+    office_parent.save()
+
+    office_seasons = [
+        {"title": "The Office: Season 1", "description": "Michael Scott manages a paper company in Scranton, Pennsylvania. His misguided attempts to be liked by his staff lead to hilarious encounters.", "release_year": 2005, "duration": "6 Episodes", "cast": "Steve Carell, Rainn Wilson, John Krasinski, Jenna Fischer, B.J. Novak", "rating": 8.5},
+        {"title": "The Office: Season 2", "description": "Michael's antics intensify as Jim and Pam's relationship develops. Dwight continues his quest for power while the office navigates corporate politics.", "release_year": 2005, "duration": "22 Episodes", "cast": "Steve Carell, Rainn Wilson, John Krasinski, Jenna Fischer, B.J. Novak", "rating": 9.2},
+        {"title": "The Office: Season 3", "description": "Jim transfers to Stamford, Pam breaks off her wedding, and Michael faces a potential branch closure. New characters bring fresh dynamics to the workplace.", "release_year": 2006, "duration": "23 Episodes", "cast": "Steve Carell, Rainn Wilson, John Krasinski, Jenna Fischer, Ed Helms, Rashida Jones", "rating": 9.3},
+        {"title": "The Office: Season 4", "description": "Michael and Jan's tumultuous relationship reaches a climax, Jim and Pam finally get together, and Ryan rises to power at corporate.", "release_year": 2007, "duration": "14 Episodes", "cast": "Steve Carell, Rainn Wilson, John Krasinski, Jenna Fischer, Ed Helms", "rating": 9.1},
+        {"title": "The Office: Season 5", "description": "Michael forms the Michael Scott Paper Company after clashing with his new boss. Jim and Pam get engaged and the office deals with a major scandal.", "release_year": 2008, "duration": "28 Episodes", "cast": "Steve Carell, Rainn Wilson, John Krasinski, Jenna Fischer, Ed Helms, Idris Elba", "rating": 9.2},
+        {"title": "The Office: Season 6", "description": "Jim and Pam get married, Michael dates Pam's mom, and a major merger shakes up the Scranton branch. Sabre acquires Dunder Mifflin.", "release_year": 2009, "duration": "26 Episodes", "cast": "Steve Carell, Rainn Wilson, John Krasinski, Jenna Fischer, Ed Helms, Kathy Bates", "rating": 9.0},
+        {"title": "The Office: Season 7", "description": "Michael Scott's final season at Dunder Mifflin as he falls in love with Holly Flax and prepares to move on, leaving the office in a state of uncertainty.", "release_year": 2010, "duration": "24 Episodes", "cast": "Steve Carell, Rainn Wilson, John Krasinski, Jenna Fischer, Ed Helms, Will Ferrell", "rating": 9.3},
+        {"title": "The Office: Season 8", "description": "The office adjusts to life without Michael Scott as Andy Bernard takes over as regional manager. Robert California becomes the new CEO of Sabre.", "release_year": 2011, "duration": "24 Episodes", "cast": "Rainn Wilson, John Krasinski, Jenna Fischer, Ed Helms, James Spader", "rating": 8.4},
+        {"title": "The Office: Season 9", "description": "The final season follows the office crew as a documentary about their lives airs. Jim and Pam face challenges, and the series culminates in a heartfelt finale.", "release_year": 2013, "duration": "25 Episodes", "cast": "Rainn Wilson, John Krasinski, Jenna Fischer, Ed Helms, Steve Carell", "rating": 8.9},
+    ]
+
+    for i, s in enumerate(office_seasons, 1):
+        upsert_movie(
+            title=s["title"],
+            defaults={
+                "description": s["description"],
+                "content_type": "series",
+                "poster_url": office_parent.poster_url,
+                "banner_url": office_parent.banner_url,
+                "video_url": "https://www.youtube.com/watch?v=LHOtME2DLyI",
+                "rating": s["rating"],
+                "release_year": s["release_year"],
+                "language": "English",
+                "duration": s["duration"],
+                "cast": s["cast"],
+                "crew": "Creator: Greg Daniels",
+                "parent": office_parent,
+                "part_number": i,
+                "part_name": f"Season {i}"
+            },
+            genre_slugs=['comedy']
+        )
+except Movie.DoesNotExist:
+    print("  SKIP: 'The Office' not found in DB")
+
+# -------------------------------------------------------
+# 25. Friends - 10 Seasons (replace partial entries)
+# -------------------------------------------------------
+print("\n--- Friends Seasons ---")
+try:
+    friends_parent = Movie.objects.get(title="Friends")
+    friends_parent.duration = "10 Seasons"
+    friends_parent.save()
+
+    friends_seasons = [
+        {"title": "Friends: Season 1", "description": "Six young New Yorkers begin their adult lives together, navigating relationships, careers, and the ups and downs of living in Manhattan.", "release_year": 1994, "duration": "24 Episodes", "cast": "Jennifer Aniston, Courteney Cox, Lisa Kudrow, Matt LeBlanc, Matthew Perry, David Schwimmer", "rating": 8.8},
+        {"title": "Friends: Season 2", "description": "Ross and Rachel's will-they-won't-they relationship heats up, Monica dates Richard, and Chandler and Joey's friendship is tested by new adventures.", "release_year": 1995, "duration": "24 Episodes", "cast": "Jennifer Aniston, Courteney Cox, Lisa Kudrow, Matt LeBlanc, Matthew Perry, David Schwimmer", "rating": 9.0},
+        {"title": "Friends: Season 3", "description": "Ross and Rachel navigate their rocky relationship, Monica starts dating Pete, and Phoebe discovers her birth mother.", "release_year": 1996, "duration": "25 Episodes", "cast": "Jennifer Aniston, Courteney Cox, Lisa Kudrow, Matt LeBlanc, Matthew Perry, David Schwimmer", "rating": 9.1},
+        {"title": "Friends: Season 4", "description": "Ross says the wrong name at his wedding, Chandler and Monica's secret relationship begins, and Joey lands a role on a soap opera.", "release_year": 1997, "duration": "24 Episodes", "cast": "Jennifer Aniston, Courteney Cox, Lisa Kudrow, Matt LeBlanc, Matthew Perry, David Schwimmer", "rating": 9.2},
+        {"title": "Friends: Season 5", "description": "Chandler and Monica try to keep their relationship secret, Ross deals with his divorce from Emily, and the gang celebrates milestone moments together.", "release_year": 1998, "duration": "24 Episodes", "cast": "Jennifer Aniston, Courteney Cox, Lisa Kudrow, Matt LeBlanc, Matthew Perry, David Schwimmer", "rating": 9.3},
+        {"title": "Friends: Season 6", "description": "Chandler proposes to Monica, Ross and Rachel deal with the aftermath of their Vegas wedding, and Joey's career takes unexpected turns.", "release_year": 1999, "duration": "25 Episodes", "cast": "Jennifer Aniston, Courteney Cox, Lisa Kudrow, Matt LeBlanc, Matthew Perry, David Schwimmer", "rating": 9.1},
+        {"title": "Friends: Season 7", "description": "Monica and Chandler plan their wedding, Rachel discovers she's pregnant, and the group faces major life changes as they approach their thirties.", "release_year": 2000, "duration": "24 Episodes", "cast": "Jennifer Aniston, Courteney Cox, Lisa Kudrow, Matt LeBlanc, Matthew Perry, David Schwimmer", "rating": 9.0},
+        {"title": "Friends: Season 8", "description": "Rachel has her baby, Ross and Rachel's complicated relationship continues, and Monica and Chandler start married life. Joey develops feelings for Rachel.", "release_year": 2001, "duration": "24 Episodes", "cast": "Jennifer Aniston, Courteney Cox, Lisa Kudrow, Matt LeBlanc, Matthew Perry, David Schwimmer", "rating": 9.2},
+        {"title": "Friends: Season 9", "description": "Ross and Rachel co-parent Emma, Monica and Chandler explore adoption, and Joey's relationship with Rachel creates tension within the group.", "release_year": 2002, "duration": "24 Episodes", "cast": "Jennifer Aniston, Courteney Cox, Lisa Kudrow, Matt LeBlanc, Matthew Perry, David Schwimmer", "rating": 8.9},
+        {"title": "Friends: Season 10", "description": "The final season wraps up all storylines: Monica and Chandler adopt twins, Ross and Rachel finally get together, and the friends say goodbye to the iconic apartment.", "release_year": 2004, "duration": "18 Episodes", "cast": "Jennifer Aniston, Courteney Cox, Lisa Kudrow, Matt LeBlanc, Matthew Perry, David Schwimmer", "rating": 9.4},
+    ]
+
+    for i, s in enumerate(friends_seasons, 1):
+        upsert_movie(
+            title=s["title"],
+            defaults={
+                "description": s["description"],
+                "content_type": "series",
+                "poster_url": friends_parent.poster_url,
+                "banner_url": friends_parent.banner_url,
+                "video_url": "https://www.youtube.com/watch?v=hDNNmeeJs1Q",
+                "rating": s["rating"],
+                "release_year": s["release_year"],
+                "language": "English",
+                "duration": s["duration"],
+                "cast": s["cast"],
+                "crew": "Creators: David Crane, Marta Kauffman",
+                "parent": friends_parent,
+                "part_number": i,
+                "part_name": f"Season {i}"
+            },
+            genre_slugs=['comedy']
+        )
+except Movie.DoesNotExist:
+    print("  SKIP: 'Friends' not found in DB")
 
 print("\n[DONE] All series seasons and movie sequels seeding completed successfully!")
