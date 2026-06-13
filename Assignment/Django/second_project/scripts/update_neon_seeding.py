@@ -209,7 +209,7 @@ avatar_parent = upsert_movie(
         "rating": 9.0,
         "release_year": 2022,
         "language": "English",
-        "duration": "2 Movies",
+        "duration": "3 Movies",
         "is_trending": True,
         "is_popular": True,
         "cast": "Sam Worthington, Zoe Saldana, Sigourney Weaver, Stephen Lang",
@@ -257,6 +257,27 @@ upsert_movie(
         "parent": avatar_parent,
         "part_number": 2,
         "part_name": "The Way of Water"
+    },
+    genre_slugs=['sci-fi', 'adventure', 'action']
+)
+
+upsert_movie(
+    title="Avatar: Fire and Ash",
+    defaults={
+        "description": "Jake Sully and the Na'vi face a new threat as an ancient power awakens deep within Pandora's volcanic regions, forcing alliances with unexpected clans to protect their world from destruction.",
+        "content_type": "movie",
+        "poster_url": "https://image.tmdb.org/t/p/original/aosm8NMQ5Pln7LeELJFOarlBoAT.jpg",
+        "banner_url": "https://image.tmdb.org/t/p/original/bB6BYWrCPSeifTECpYSfDqjNCnf.jpg",
+        "video_url": "https://www.youtube.com/watch?v=SLh1H_x0PVA",
+        "rating": 9.0,
+        "release_year": 2025,
+        "language": "English",
+        "duration": "3h 2m",
+        "cast": "Sam Worthington, Zoe Saldana, Sigourney Weaver, Oona Chaplin, Michelle Yeoh",
+        "crew": "Director: James Cameron",
+        "parent": avatar_parent,
+        "part_number": 3,
+        "part_name": "Fire and Ash"
     },
     genre_slugs=['sci-fi', 'adventure', 'action']
 )
