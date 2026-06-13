@@ -17,6 +17,17 @@ function MovieDetail({ payload, user, csrfToken }) {
 
   const playableMovieId = (parts.length > 0 && (movie.content_type === 'series' ? !movie.parent_id : parts.some(p => p.id === movie.id) && movie.id === parent_movie?.id)) ? parts[0].id : movie.id;
 
+  // Compute release year text (range for parent collections/series, or single year for parts)
+  let releaseYearText = String(movie.release_year);
+  if (!movie.parent_id && parts.length > 0) {
+    const years = [movie.release_year, ...parts.map(p => p.release_year)].filter(Boolean);
+    const minYear = Math.min(...years);
+    const maxYear = Math.max(...years);
+    if (minYear !== maxYear) {
+      releaseYearText = `${minYear} - ${maxYear}`;
+    }
+  }
+
   const toggleWatchlist = () => {
     if (!user) {
       window.location.href = '/login/';
@@ -93,7 +104,7 @@ function MovieDetail({ payload, user, csrfToken }) {
               <span className="bg-primary-container text-white text-[10px] font-bold px-2.5 py-0.5 rounded tracking-widest uppercase">
                 {movie.content_type === 'series' ? 'TV Series' : 'Movie'}
               </span>
-              <span className="text-white/60 font-body-md text-sm">{movie.release_year}</span>
+              <span className="text-white/60 font-body-md text-sm">{releaseYearText}</span>
               <span className="text-white/60 font-body-md text-sm border border-white/20 px-1.5 rounded">{movie.language}</span>
             </div>
             
@@ -242,7 +253,7 @@ function MovieDetail({ payload, user, csrfToken }) {
                 </div>
                 <div className="flex justify-between items-center py-2 border-b border-white/5">
                   <span className="text-white/50">Release Year</span>
-                  <span className="font-bold text-white">{movie.release_year}</span>
+                  <span className="font-bold text-white">{releaseYearText}</span>
                 </div>
                 <div className="flex justify-between items-center py-2 border-b border-white/5">
                   <span className="text-white/50">Duration</span>
